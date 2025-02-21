@@ -1,0 +1,11 @@
+# Frontend
+frontend/node_modules/
+
+# Backend
+
+
+# Editor/IDE
+.vscode/
+
+# Sistema
+.DS_Store
