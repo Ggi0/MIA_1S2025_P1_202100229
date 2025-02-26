@@ -6,7 +6,7 @@ import { Navigation } from "./components/Navigation";
 function App() {
   return (
     <BrowserRouter>
-      <Navigation />
+      <Navigation/>
       <Routes>
         <Route path="/" element={<Principal />} />
         <Route path="/info" element={<Segundaria />} />

@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-// Es un área de entrada tipo textarea donde el usuario escribe comandos.
+export function InputConsole({ onCommand, fileContent, setFileContent }) {
+  const [command, setCommand] = useState("");
+  
+  // Actualiza el comando cuando cambia fileContent desde el exterior
+  useEffect(() => {
+    if (fileContent) {
+      setCommand(fileContent);
+    }
+  }, [fileContent]);
 
-export function InputConsole({ onCommand }) {
-  
-  const [command, setCommand] = useState(""); // para manejar el estado del texto ingresado.
-  
   const handleExecute = () => {
     if (command.trim()) {
       onCommand(command);
@@ -13,10 +17,20 @@ export function InputConsole({ onCommand }) {
     }
   };
 
+  const handleChange = (e) => {
+    const newValue = e.target.value;
+    setCommand(newValue);
+    setFileContent(newValue); // Sincroniza la entrada con el contenido del archivo
+  };
+
   return (
     <div>
-      <textarea value={command} onChange={(e) => setCommand(e.target.value)} />
+      <textarea
+        value={command}
+        onChange={handleChange}
+      />
     </div>
   );
 }
+
 export default InputConsole;

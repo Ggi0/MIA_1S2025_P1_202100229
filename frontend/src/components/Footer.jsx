@@ -4,7 +4,8 @@
 export function Footer() {
   return (
     <footer>
-      <p>© 2025 Consola Web</p>
+      <p> Manejo e implementacion de archivos 2025 </p>
+      <p> Giovanni Cc </p>
     </footer>
   );
 }

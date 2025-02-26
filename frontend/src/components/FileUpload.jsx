@@ -1,18 +1,33 @@
 // subir un archivo desde su computadora.
 
-export function FileUpload({ onFileUpload }) {
-  
-    const handleFileChange = (event) => {
-    const file = event.target.files[0];
+import React from "react";
 
-    if (file) {
-      onFileUpload(file);
+export function FileUpload({ onFileUpload }) {
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file && (file.name.endsWith(".txt") || file.name.endsWith(".mia"))) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        onFileUpload(e.target.result);
+      };
+      reader.readAsText(file);
     }
+  };
+
+  const handleButtonClick = () => {
+    document.getElementById("fileInput").click();
   };
 
   return (
     <div>
-      <input type="file" onChange={handleFileChange} />
+      <input
+        id="fileInput"
+        type="file"
+        accept=".txt,.mia"
+        onChange={handleFileChange}
+        style={{ display: "none" }}
+      />
+      <button onClick={handleButtonClick}>Elegir archivo</button>
     </div>
   );
 }
