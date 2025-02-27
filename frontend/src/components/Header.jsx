@@ -3,7 +3,7 @@
 export function Header() {
   return (
     <header>
-      <h1>Proyecto 1</h1>
+      <h1>Proyecto - 1</h1>
     </header>
   );
 }

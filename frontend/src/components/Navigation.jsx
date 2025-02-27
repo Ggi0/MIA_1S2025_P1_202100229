@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 export function Navigation() {
   return (
     <div className="button-container">
-      <Link to="/"><div>home</div></Link>
+      <Link to="/analizar"><div>home</div></Link>
 
       <Link to="/info"><div>info</div></Link>
     </div>

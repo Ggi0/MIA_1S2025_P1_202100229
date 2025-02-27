@@ -1,7 +1,7 @@
 // subir un archivo desde su computadora.
 
 import React from "react";
-
+//                           la función recibe un objeto de props y extrae la propiedad onFileUpload.
 export function FileUpload({ onFileUpload }) {
   const handleFileChange = (event) => {
     const file = event.target.files[0];

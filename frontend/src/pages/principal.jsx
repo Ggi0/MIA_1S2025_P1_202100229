@@ -1,35 +1,49 @@
-import Header from "../components/Header";
-import { useState } from "react";
-import InputConsole from "../components/InputConsole";
+import Header        from "../components/Header";
+import { useState }  from "react"; // es un hook que permite añadir estado a componentes funcionales.
+import InputConsole  from "../components/InputConsole";
 import OutputConsole from "../components/OutputConsole";
-import FileUpload from "../components/FileUpload";
+import FileUpload    from "../components/FileUpload";
 import ExecuteButton from "../components/ExecuteButton";
-import ClearButton from "../components/ClearButton";
-import Footer from "../components/Footer";
+import ClearButton   from "../components/ClearButton";
+import Footer        from "../components/Footer";
 
+/**
+ * Componente principal de la aplicación
+ * Gestiona el estado y la interacción entre los componentes
+ */
 export function Principal() {
-  // Esto TIENE que estar ANTES de cualquier uso de setFileContent
+  // Estados para gestionar el contenido del archivo y la salida
   const [fileContent, setFileContent] = useState("");
+  const [output, setOutput] = useState(""); // Estado para almacenar la salida
   
-  // También es importante definir onCommand para InputConsole
+  /**
+   * Maneja el comando ejecutado desde InputConsole
+   * @param {string} cmd - El comando ejecutado
+   */
   const handleCommand = (cmd) => {
     console.log("Comando ejecutado:", cmd);
-    // Aquí irá la lógica para procesar el comando
+    // Esta función ahora no se utiliza ya que el botón Ejecutar maneja la comunicación
+  };
+
+  /**
+   * Limpia el contenido del área de texto y la salida
+   */
+  const handleClear = () => {
+    setFileContent("");
+    setOutput("");
   };
   
   return (
     <div>
-      
       <Header />
       
       <div className="button-container">
         <FileUpload onFileUpload={setFileContent} />
-        <ExecuteButton />
-        <ClearButton />
+        <ExecuteButton fileContent={fileContent} setOutput={setOutput} />
+        <ClearButton onClear={handleClear} />
       </div>
       
       <main>
-        
         <section>
           <h3>Entrada:</h3>
           <InputConsole 
@@ -41,10 +55,10 @@ export function Principal() {
 
         <section>
           <h3>Salida:</h3>
-          <OutputConsole />
+          <OutputConsole output={output} />
         </section>
-
       </main>
+      
       <Footer />
     </div>
   );
