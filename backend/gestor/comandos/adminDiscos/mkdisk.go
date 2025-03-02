@@ -1,10 +1,12 @@
-package comandos
+package Comandos
 
 import (
 	"fmt"
 	"log"
 	"strconv"
 	"strings"
+
+	"Gestor/Acciones"
 )
 
 /*
@@ -109,10 +111,17 @@ func Mkdisk(parametros []string) {
 				path = strings.Trim(path, `"`) // Elimina comillas si están presentes
 				ruta := strings.Split(path, "/")
 				nombreDisco := ruta[len(ruta)-1]
-				fmt.Println("nombre del disco: ", "'", nombreDisco, "'")
+				fmt.Println("nombre del disco: ", "`", nombreDisco, "`")
 
 				// en este punto tenemos todo lo necesario para crear el Disco
 				fmt.Println("FIT: ", fit)
+
+				// CREAR EL DISCO -> hacer el archivo binario que simule el disco
+				err := Acciones.CrearDisco(path, nombreDisco)
+				if err != nil {
+					fmt.Println(" \n --> MKDISK, ERROR: ", err)
+				}
+
 				break
 
 			}

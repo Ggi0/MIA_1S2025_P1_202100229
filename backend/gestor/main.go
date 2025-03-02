@@ -19,7 +19,7 @@ import (
 	"unicode" // para caracteres
 
 	// administracion de discos:
-	adminDisk "gestor/comandos/adminDiscos"
+	AdminDisk "Gestor/Comandos/AdminDiscos"
 )
 
 func main() {
@@ -106,7 +106,7 @@ func analizar(entrada string) {
 		if len(parametros) > 1 {
 			// ejecutar parametros
 			fmt.Println("\n =-=-=-=-=-=-= =-=-=-=-=-=-= =-=-=-=-=-=-= =-=-=-=-=-=-= ")
-			adminDisk.Mkdisk(parametros)
+			AdminDisk.Mkdisk(parametros)
 			fmt.Println(" =-=-=-=-=-=-= =-=-=-=-=-=-= =-=-=-=-=-=-= =-=-=-=-=-=-= ")
 		} else {
 			// retornar un error
