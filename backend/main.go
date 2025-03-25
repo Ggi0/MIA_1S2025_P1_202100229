@@ -1,88 +1,115 @@
 package main
 
+/*
+	Giovanni Concohá - Ggi0
+
+	Aplicación web para gestionar un sistema de archivos EXT2,
+	usando React para el frontend y Go para el backend.
+	Permite crear/administrar particiones, gestionar archivos/carpetas,
+	manejar permisos de usuarios/grupos y generar reportes. El sistema
+	expone una API REST para las operaciones del sistema de archivos.
+
+*/
+
 import (
-    "bufio"
-    "fmt"
-    "github.com/gin-contrib/cors"
-    "github.com/gin-gonic/gin"
-    "net/http"
-    "strings"
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+	"unicode" // para caracteres
+
+	// administracion de discos:
+	AdminDisk "Gestor/Comandos/AdminDiscos"
 )
 
-// Entrada representa la estructura de los datos enviados desde el frontend
-type Entrada struct {
-    Text string `json:"text"`
-}
-
-// StatusResponse representa la respuesta del servidor
-type StatusResponse struct {
-    Message string `json:"message"`
-    Type    string `json:"type"`
-}
-
 func main() {
-    // Crear una nueva instancia de Gin
-    r := gin.Default()
+	fmt.Print("\n\nBienvenido, ¿Que desea realizar? esperando...\n\n$: ")
 
-    // Configurar CORS para Gin
-    r.Use(cors.New(cors.Config{
-        AllowOrigins:     []string{"http://localhost:5173"}, // Origen de tu aplicación React
-        AllowMethods:     []string{"GET", "POST", "OPTIONS"},
-        AllowHeaders:     []string{"Origin", "Content-Type", "Accept"},
-        ExposeHeaders:    []string{"Content-Length"},
-        AllowCredentials: true,
-    }))
+	reader := bufio.NewScanner(os.Stdin)
 
-    // Configurar rutas
-    r.POST("/analizar", getCadenaAnalizar)
-    r.GET("/analizar", healthCheck)
+	for {
 
-     // Iniciar el servidor en el puerto 8080
-     fmt.Println("Servidor ejecutándose en http://localhost:8080")
-     r.Run(":8080")
+		// capturar la entrada:
+		reader.Scan()
+
+		entrada := strings.TrimRight(reader.Text(), " ") // omitir espacios vacios
+		linea := strings.Split(entrada, "#")             // ignorar comentarios
+
+		if strings.ToLower(linea[0]) != "exit" { // pasar todo a minusculas
+			analizar(linea[0])
+
+		} else {
+			fmt.Println("\n ... Adios ... ")
+			break
+		}
+
+	}
+
 }
 
-// **GET /analizar** - Endpoint para verificar que el servidor esté corriendo
-func healthCheck(c *gin.Context) {
-    c.JSON(http.StatusOK, StatusResponse{
-        Message: "El servidor está funcionando correctamente",
-        Type:    "success",
-    })
-    fmt.Println("Servidor funcionando")
-}
+/*
+Funcion que procesa una cadena de entrada para separar los parametros.
+*/
+func analizar(entrada string) {
 
-// **POST /analizar** - Recibe y analiza un texto enviado desde el frontend
-func getCadenaAnalizar(c *gin.Context) {
-    var entrada Entrada
+	/*
+		se debe se separar la linea por parametros, guión ( - )
 
-    // Intentar decodificar el JSON enviado en la solicitud
-    if err := c.ShouldBindJSON(&entrada); err != nil {
-        c.JSON(http.StatusBadRequest, StatusResponse{
-            Message: "Error al decodificar JSON",
-            Type:    "unsuccess",
-        })
-        return
-    }
+		comando
+			-parametro1 ( obligatorio/opcional )
+			-parametro2 ( obligatorio/opcional )
+			-parametro3 ( obligatorio/opcional )
+			- ...
+	*/
+	var parametros []string    // Lista donde se almacenarán los parámetros
+	var buffer strings.Builder // Buffer para construir cada parámetro individualmente
+	enComillas := false
 
-    // Analizar cada línea del texto recibido
-    lector := bufio.NewScanner(strings.NewReader(entrada.Text))
-    for lector.Scan() {
-        linea := lector.Text()
-        analizar(linea)
-    }
+	// Recorremos cada caracter de la entrada
+	for i, char := range entrada {
+		if char == '"' {
+			enComillas = !enComillas // Cambiar estado de comillas
+		}
 
-    fmt.Println("Cadena recibida (desde el metodo):", entrada.Text)
+		// Si encontramos un '-', NO estamos dentro de comillas y no es el primer carácter
+		if char == '-' && !enComillas && i > 0 {
+			parametros = append(parametros, buffer.String()) // Guardamos lo que llevamos en buffer
+			// fmt.Println("==========> ", buffer.String())
+			buffer.Reset()
+			continue
+		}
 
-    // Responder con el texto procesado
-    c.JSON(http.StatusOK, gin.H{
-        "message":       "Recibido correctamente de la TextArea",
-        "type":          "success",
-        "processedText": "comando " + entrada.Text + " analizado desde el back",
-    })
-}
+		// // Si NO estamos dentro de comillas y encontramos un espacio, lo ignoramos
+		if !enComillas && unicode.IsSpace(char) {
+			continue
+		}
+		// Agregamos el carácter actual al buffer
+		//fmt.Println("--------->", string(rune(char)))
+		buffer.WriteRune(char)
+	}
 
-// **Función para analizar el texto recibido**
-func analizar(linea string) {
-    fmt.Println("Analizando línea:", linea)
-    // Aquí podrías agregar cualquier lógica para procesar el texto
+	// Agregar el último parámetro si el buffer contiene algo
+	if buffer.Len() > 0 {
+		parametros = append(parametros, buffer.String())
+	}
+	/*
+		// Imprimir los parámetros obtenidos
+		for i, param := range parametros {
+			fmt.Printf("*-*-*-*-*-*->> parametros[%d] = %s\n", i, param)
+		}
+	*/
+
+	// parametros := strings.Split(entrada, " -") // lista de parametros seperados por  "-"
+
+	if strings.ToLower(parametros[0]) == "mkdisk" {
+		if len(parametros) > 1 {
+			// ejecutar parametros
+			fmt.Println("\n =-=-=-=-=-=-= =-=-=-=-=-=-= =-=-=-=-=-=-= =-=-=-=-=-=-= ")
+			AdminDisk.Mkdisk(parametros)
+			fmt.Println(" =-=-=-=-=-=-= =-=-=-=-=-=-= =-=-=-=-=-=-= =-=-=-=-=-=-= ")
+		} else {
+			// retornar un error
+			fmt.Println(" \n --> MKDISK, ERROR: falta de parametros obligatorios")
+		}
+	}
 }
