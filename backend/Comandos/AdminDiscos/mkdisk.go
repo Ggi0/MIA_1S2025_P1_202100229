@@ -50,7 +50,7 @@ func Mkdisk(parametros []string) {
 		case "size":
 			sizeInit = true                       // el valor si viene dentro de las especificaciones
 			var err error                         // variable para el error posible
-			size, err = strconv.Atoi(tknParam[1]) // int a string
+			size, err = strconv.Atoi(tknParam[1]) // string a int
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -106,7 +106,7 @@ func Mkdisk(parametros []string) {
 			// esta información necesaria para la CREACION real del Disco
 			if sizeInit && pathInit { // validar los parametros obligatorios
 				// tamanio del disco
-				fmt.Println("validando:  ", size, "*", unit)
+				//fmt.Println("validando:  ", size, "*", unit)
 				tamanio := size * unit
 				fmt.Println("--> Tamanio del disco: ", tamanio, " Bytes.")
 
@@ -135,8 +135,8 @@ func Mkdisk(parametros []string) {
 
 				// A traves del tamanio establecido llena de 0 hasta esa posición.
 				// cantidad de valores en binario -> del tamanio del disco que necesitamos
-				datos := make([]byte, tamanio) // llenar el disco de Ceros (0)
-				newErr := Acciones.WriteObject(file, datos, 0)
+				datos := make([]byte, tamanio)                 // llenar el disco de Ceros (0)
+				newErr := Acciones.WriteObject(file, datos, 0) //--> desde la posicion 0
 				if newErr != nil {
 					fmt.Println("\t ---> ERROR [ MK DISK ]: ", err)
 					return
@@ -149,7 +149,7 @@ func Mkdisk(parametros []string) {
 				}
 
 				defer file.Close()
-				fmt.Println("se cerro con exito")
+				fmt.Println("\n[ MK DISK ]: Proceso completado, el disco", nombreDisco, " Fue creado CORRECTAMENTE. en: ", file.Name())
 
 				break
 

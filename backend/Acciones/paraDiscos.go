@@ -47,13 +47,13 @@ func CrearDisco(path string, nombreDisco string) error { // retorna un error
 		processedPath = path
 	}
 
-	fmt.Println("La path que entra al crear un disco: `", path, "`") // path original
-	fmt.Println("La path procesada: `", processedPath, "`")          // path funcional en macOS
+	//fmt.Println("La path que entra al crear un disco: `", path, "`") // path original
+	//fmt.Println("La path procesada: `", processedPath, "`")          // path funcional en macOS
 
 	// Verificar si el archivo ya existe ANTES de crear directorios
 	if _, err := os.Stat(processedPath); err == nil {
 		// El archivo ya existe, retornar un error
-		errorMsg := fmt.Sprintf(" \n --> MKDISK (CrearDisco), ERROR: el disco '%s' ya existe en la ruta '%s'", nombreDisco, path)
+		errorMsg := fmt.Sprintf("\t ---> ERROR [ MK DISK ] (CrearDisco): el disco '%s' ya existe en la ruta '%s'", nombreDisco, path)
 		fmt.Println(errorMsg)
 		return err
 	} else if !os.IsNotExist(err) {
@@ -67,19 +67,19 @@ func CrearDisco(path string, nombreDisco string) error { // retorna un error
 
 	// Crear el directorio si no existe y todas sus carpetas padre si no existen.
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-		fmt.Println(" \n --> MKDISK (CrearDisco), ERROR: al crear el disco: ", err)
+		fmt.Println("\t ---> ERROR [ MK DISK ](CrearDisco): al crear el disco: ", err)
 		return err
 	}
 
 	// Verificar si el archivo ya existe
 	newFile, err := os.Create(processedPath) // Crear el archivo si no existe
 	if err != nil {
-		fmt.Println(" \n --> MKDISK (CrearDisco), ERROR: al crear el disco: ", err)
+		fmt.Println("\t ---> ERROR [ MK DISK ](CrearDisco): al crear el disco: ", err)
 		return err
 	}
 	defer newFile.Close() // Cierra el archivo
 
-	fmt.Println(" \n --> MKDISK, disco:", nombreDisco, "creado EXITOSAMENTE.")
+	//fmt.Println(" \n --> MKDISK, disco:", nombreDisco, "creado EXITOSAMENTE.")
 	return nil
 
 }
@@ -90,14 +90,14 @@ y retorna un puntero a os.File junto con un posible error.
 */
 func OpenFile(name string) (*os.File, error) {
 	name = rutaCorrecta(name)
-	fmt.Println("ruta desde open file: ", name)
+	//fmt.Println("ruta desde open file: ", name)
 	file, err := os.OpenFile(name, os.O_RDWR, 0664) // abrir el archivo en modo lectura y escritura
 	if err != nil {
-		fmt.Println(" \n --> MKDISK (openFile), ERROR: ", err)
+		fmt.Println("\t ---> ERROR [ MK DISK ](openFile): ", err)
 		return nil, err
 	}
 
-	fmt.Println("se abrio con exito el archivo")
+	fmt.Println(" [ MK DISK ] se abrio con exito el archivo")
 	return file, nil // Si no hay error, retorna el archivo abierto
 }
 
@@ -108,8 +108,8 @@ Escribir datos binarios en un archivo en una posición específica.
 
 	parametros:
 		file *os.File: Un puntero a un archivo ya abierto.
-		data interface{}: Datos genéricos que se escribirán en el archivo.
-		position int64: La posición en el archivo donde se escribirá data.
+		data interface{}: Datos genéricos que se escribirán en el archivo. disco de Ceros (0)
+		position int64: La posición en el archivo donde se escribirá data. desde el inicio
 
 	seek()
 		El archivo está vacío al inicio.
@@ -121,7 +121,7 @@ func WriteObject(file *os.File, data interface{}, position int64) error {
 	file.Seek(position, 0)                               //(posicion , desde donde(inicio) ) -> (5,0) significa a la posicion 5 desde el inicio del archivo
 	err := binary.Write(file, binary.LittleEndian, data) //Escribir los datos en formato binario
 	if err != nil {
-		fmt.Println("Err WriteObject==", err)
+		fmt.Println("Err WriteObject == ", err)
 		return err
 	}
 	return nil

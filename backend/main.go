@@ -25,7 +25,7 @@ import (
 func main() {
 	fmt.Print("\n\nBienvenido, ¿Que desea realizar? esperando...\n\n$: ")
 
-	reader := bufio.NewScanner(os.Stdin)
+	reader := bufio.NewScanner(os.Stdin) // variable con info desde el front
 
 	for {
 
@@ -99,8 +99,8 @@ func analizar(entrada string) {
 		}
 	*/
 
+	// de aqui para arriba posible 		COMANDO 	EXECUTE
 	// parametros := strings.Split(entrada, " -") // lista de parametros seperados por  "-"
-
 	if strings.ToLower(parametros[0]) == "mkdisk" {
 		if len(parametros) > 1 {
 			// ejecutar parametros
@@ -109,7 +109,7 @@ func analizar(entrada string) {
 			fmt.Println(" =-=-=-=-=-=-= =-=-=-=-=-=-= =-=-=-=-=-=-= =-=-=-=-=-=-= ")
 		} else {
 			// retornar un error
-			fmt.Println(" \n --> MKDISK, ERROR: falta de parametros obligatorios")
+			fmt.Println("\t ---> ERROR [ MK DISK ]: falta de parametros obligatorios")
 		}
 	}
 }
