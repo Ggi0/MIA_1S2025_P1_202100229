@@ -19,36 +19,33 @@ Crear el archivo .mia que simulara el DISCO
 */
 func CrearDisco(path string, nombreDisco string) error { // retorna un error
 
-	// Detectar si estamos en macOS
-	isMacOS := runtime.GOOS == "darwin"
-
 	// Variable para guardar la ruta procesada
 	var processedPath string
 
 	/*
+		// Detectar si estamos en macOS
+		isMacOS := runtime.GOOS == "darwin"
+		if isMacOS && strings.HasPrefix(path, "/home") {
+			// En macOS, redirigir las rutas /home a una carpeta en el directorio del usuario
+			homeDir, err := os.UserHomeDir()
+			if err != nil {
+				return fmt.Errorf(" \n --> MKDISK (CrearDisco), ERROR: al obtener el directorio del usuario: %w", err)
+			}
 
-		El proyecto está diseñado para ejecutarse principalmente
-		en Linux donde la ruta /home es completamente accesible,
-
-	*/
-	if isMacOS && strings.HasPrefix(path, "/home") {
-		// En macOS, redirigir las rutas /home a una carpeta en el directorio del usuario
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			return fmt.Errorf(" \n --> MKDISK (CrearDisco), ERROR: al obtener el directorio del usuario: %w", err)
+			// Reemplazar /home con el directorio simulado en la carpeta del usuario
+			// Por ejemplo, /home/user/archivo.mia se convierte en /Users/gio/home/user/archivo.mia
+			relPath := strings.TrimPrefix(path, "/home")
+			processedPath = filepath.Join(homeDir, "home", relPath)
+		} else {
+			// En Linux o si la ruta no comienza con /home, usar la ruta original
+			processedPath = path
 		}
+	*/
 
-		// Reemplazar /home con el directorio simulado en la carpeta del usuario
-		// Por ejemplo, /home/user/archivo.mia se convierte en /Users/gio/home/user/archivo.mia
-		relPath := strings.TrimPrefix(path, "/home")
-		processedPath = filepath.Join(homeDir, "home", relPath)
-	} else {
-		// En Linux o si la ruta no comienza con /home, usar la ruta original
-		processedPath = path
-	}
+	processedPath = RutaCorrecta(path)
 
-	//fmt.Println("La path que entra al crear un disco: `", path, "`") // path original
-	//fmt.Println("La path procesada: `", processedPath, "`")          // path funcional en macOS
+	fmt.Println("La path que entra al crear un disco: `", path, "`") // path original
+	fmt.Println("La path procesada: `", processedPath, "`")          // path funcional en macOS
 
 	// Verificar si el archivo ya existe ANTES de crear directorios
 	if _, err := os.Stat(processedPath); err == nil {
@@ -89,7 +86,7 @@ abre un archivo en modo lectura/escritura (os.O_RDWR)
 y retorna un puntero a os.File junto con un posible error.
 */
 func OpenFile(name string) (*os.File, error) {
-	name = rutaCorrecta(name)
+	name = RutaCorrecta(name)
 	//fmt.Println("ruta desde open file: ", name)
 	file, err := os.OpenFile(name, os.O_RDWR, 0664) // abrir el archivo en modo lectura y escritura
 	if err != nil {
@@ -97,7 +94,7 @@ func OpenFile(name string) (*os.File, error) {
 		return nil, err
 	}
 
-	fmt.Println(" [ MK DISK ] se abrio con exito el archivo")
+	fmt.Println("[ DISK ] se abrio con exito el archivo")
 	return file, nil // Si no hay error, retorna el archivo abierto
 }
 
@@ -129,7 +126,7 @@ func WriteObject(file *os.File, data interface{}, position int64) error {
 
 // Function to Read an object from a bin file
 func ReadObject(file *os.File, data interface{}, position int64) error {
-	file.Seek(position, 0)
+	file.Seek(position, 0) // lee desde la posicion (posicion, 0)
 	err := binary.Read(file, binary.LittleEndian, data)
 	if err != nil {
 		fmt.Println("Err ReadObject==", err)
@@ -139,7 +136,7 @@ func ReadObject(file *os.File, data interface{}, position int64) error {
 	return nil
 }
 
-func rutaCorrecta(path string) string {
+func RutaCorrecta(path string) string {
 	// Detectar si estamos en macOS
 	isMacOS := runtime.GOOS == "darwin"
 

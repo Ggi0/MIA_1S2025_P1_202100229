@@ -27,7 +27,7 @@ type MBR struct {
 	Mbr_creation_date  [19]byte     // Fecha y hora de creación del MBR
 	Mbr_disk_signature int32        // Firma del disco (ID)
 	Mbr_disk_fit       [1]byte      // Tipo de ajuste
-	Mbr_partitions     [4]Partition // Particiones del MBR slice del struct Partition
+	Mbr_partitions     [4]Partition // Particiones del MBR slice del struct Partition (4)
 }
 
 /*

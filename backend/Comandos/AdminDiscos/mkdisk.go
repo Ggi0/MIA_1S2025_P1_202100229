@@ -130,8 +130,11 @@ func Mkdisk(parametros []string) {
 				file, err := Acciones.OpenFile(path)
 
 				if err != nil {
+					defer file.Close()
 					return
 				}
+
+				// --> aqui se valida que el tamanio no crezca
 
 				// A traves del tamanio establecido llena de 0 hasta esa posición.
 				// cantidad de valores en binario -> del tamanio del disco que necesitamos
@@ -139,12 +142,14 @@ func Mkdisk(parametros []string) {
 				newErr := Acciones.WriteObject(file, datos, 0) //--> desde la posicion 0
 				if newErr != nil {
 					fmt.Println("\t ---> ERROR [ MK DISK ]: ", err)
+					defer file.Close()
 					return
 				}
 
 				// Escribir el MBR para completar el proceso de creacion del DISCO
 				file, errr := Estructuras.EscribirMBR(file, tamanio, fit)
 				if errr != nil {
+					defer file.Close()
 					return
 				}
 

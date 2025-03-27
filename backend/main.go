@@ -101,15 +101,45 @@ func analizar(entrada string) {
 
 	// de aqui para arriba posible 		COMANDO 	EXECUTE
 	// parametros := strings.Split(entrada, " -") // lista de parametros seperados por  "-"
-	if strings.ToLower(parametros[0]) == "mkdisk" {
+	/*if strings.ToLower(parametros[0]) == "mkdisk" {
 		if len(parametros) > 1 {
 			// ejecutar parametros
-			fmt.Println("\n =-=-=-=-=-=-= =-=-=-=-=-=-= =-=-=-=-=-=-= =-=-=-=-=-=-= ")
+			fmt.Println("\n ------------------------------------------------------------------------- ")
 			AdminDisk.Mkdisk(parametros)
-			fmt.Println(" =-=-=-=-=-=-= =-=-=-=-=-=-= =-=-=-=-=-=-= =-=-=-=-=-=-= ")
+			fmt.Println(" ------------------------------------------------------------------------- \n ")
 		} else {
 			// retornar un error
 			fmt.Println("\t ---> ERROR [ MK DISK ]: falta de parametros obligatorios")
 		}
+	} else if strings.ToLower(parametros[0]) == "fdisk" {
+
+	}*/
+
+	switch strings.ToLower(parametros[0]) {
+	case "mkdisk":
+		if len(parametros) > 1 {
+			// ejecutar parametros
+			fmt.Println("\n ------------------------------------------------------------------------- ")
+			AdminDisk.Mkdisk(parametros)
+			fmt.Println(" ------------------------------------------------------------------------- \n ")
+		} else {
+			// retornar un error
+			fmt.Println("\t ---> ERROR [ MK DISK ]: falta de parametros obligatorios")
+		}
+
+	case "fdisk":
+		if len(parametros) > 1 {
+			// ejecutar parametros
+			fmt.Println("\n ------------------------------------------------------------------------- ")
+			AdminDisk.Fdisk(parametros)
+			fmt.Println(" ------------------------------------------------------------------------- \n ")
+		} else {
+			// retornar un error
+			fmt.Println("\t ---> ERROR [ F DISK ]: falta de parametros obligatorios")
+		}
+
+	default:
+		fmt.Println("\t ---> ERROR [ ]: comando no reconocido ", strings.ToLower(parametros[0]))
 	}
+
 }
