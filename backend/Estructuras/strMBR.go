@@ -77,9 +77,25 @@ func EscribirMBR(file *os.File, tam int, fit string) (*os.File, error) {
 
 // Reportes de los Structs
 func PrintMBR(data MBR) {
-	fmt.Println("\t Disco")
-	fmt.Printf("CreationDate: %s, fit: %s, size: %d, id: %d\n", string(data.Mbr_creation_date[:]), string(data.Mbr_disk_fit[:]), data.Mbr_tamanio, data.Mbr_disk_signature)
+	fmt.Println("==================================")
+	fmt.Println("            Disco                ")
+	fmt.Println("==================================")
+	fmt.Printf("Fecha de creación: %s\n", string(data.Mbr_creation_date[:]))
+	fmt.Printf("Tipo de ajuste (Fit): %s\n", string(data.Mbr_disk_fit[:]))
+	fmt.Printf("Tamaño del disco: %d Bytes\n", data.Mbr_tamanio)
+	fmt.Printf("ID del disco: %d\n", data.Mbr_disk_signature)
+	fmt.Println("----------------------------------")
+	fmt.Println("          Particiones             ")
+	fmt.Println("----------------------------------")
 	for i := 0; i < 4; i++ {
-		fmt.Printf("Partition %d: %s, %s, %d, %d, %s, %d\n", i, string(data.Mbr_partitions[i].Part_name[:]), string(data.Mbr_partitions[i].Part_type[:]), data.Mbr_partitions[i].Part_start, data.Mbr_partitions[i].Part_size, string(data.Mbr_partitions[i].Part_fit[:]), data.Mbr_partitions[i].Part_correlative)
+		fmt.Printf("Partición %d:\n", i+1)
+		fmt.Printf("\tNombre: %s\n", string(data.Mbr_partitions[i].Part_name[:]))
+		fmt.Printf("\tTipo:   %s\n", string(data.Mbr_partitions[i].Part_type[:]))
+		fmt.Printf("\tInicio: %d\n", data.Mbr_partitions[i].Part_start)
+		fmt.Printf("\tTamaño: %d Bytes\n", data.Mbr_partitions[i].Part_size)
+		fmt.Printf("\tAjuste: %s\n", string(data.Mbr_partitions[i].Part_fit[:]))
+		fmt.Printf("\tCorrelativo: %d\n", data.Mbr_partitions[i].Part_correlative)
 	}
+	fmt.Println("----------------------------------")
+
 }

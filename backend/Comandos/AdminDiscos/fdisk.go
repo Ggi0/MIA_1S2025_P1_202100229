@@ -188,7 +188,9 @@ func Fdisk(parametros []string) {
 				Estructuras.EscribirParticion(disco, typePartition, name, size, unit, fit)
 
 				defer disco.Close() // cerrar el disco
-				fmt.Println("======End FDISK======")
+				//				fmt.Println("\n[ MK DISK ]: Proceso completado, el disco", nombreDisco, " Fue creado CORRECTAMENTE. en: ", file.Name())
+
+				fmt.Println("\n[ F DISK ]: Proceso completado, la particion:  \"" + name + "\" Fue creado CORRECTAMENTE en el disco: \"" + disco.Name() + "\"")
 
 			} else {
 				fmt.Println("\t ---> ERROR [ F DISK ]: parametros minimos obligatirios incompletos")
