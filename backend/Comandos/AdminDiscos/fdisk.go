@@ -177,13 +177,6 @@ func Fdisk(parametros []string) {
 					return
 				}
 
-				//Se crea un mbr para cargar el mbr del disco --> la info
-				var mbr Estructuras.MBR
-				//Guardo el mbr leido --> y se lee desde la posicion (0, 0)
-				if err := Acciones.ReadObject(disco, &mbr, 0); err != nil {
-					return
-				}
-
 				fmt.Println("-- info fdisk --")
 				fmt.Println("Size: ", size)
 				fmt.Println("Unit: ", unit)
@@ -191,7 +184,11 @@ func Fdisk(parametros []string) {
 				fmt.Println("fit: ", fit)
 				fmt.Println("name: ", name)
 
+				// EscribirParticion(disco *os.File, typePartition string, name string, size int, unit int, fit string)
+				Estructuras.EscribirParticion(disco, typePartition, name, size, unit, fit)
+
 				defer disco.Close() // cerrar el disco
+				fmt.Println("======End FDISK======")
 
 			} else {
 				fmt.Println("\t ---> ERROR [ F DISK ]: parametros minimos obligatirios incompletos")
