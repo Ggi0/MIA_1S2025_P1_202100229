@@ -137,6 +137,13 @@ func ReadObject(file *os.File, data interface{}, position int64) error {
 }
 
 func RutaCorrecta(path string) string {
+
+	path = strings.Trim(path, `"`)
+
+	// TODO: validación que hacer agregar el "/home" para estos casos:
+	//	fdisk -size=1 -type=L -unit=M -fit=BF-path="/mis
+	//	discos/Disco3.mia"-name="Particion3"
+
 	// Detectar si estamos en macOS
 	isMacOS := runtime.GOOS == "darwin"
 
@@ -169,3 +176,10 @@ func RutaCorrecta(path string) string {
 
 	return processedPath
 }
+
+/*
+
+mkdisk -size=5 -unit=M -path="/home/mis discos/Disco3.mia"
+fdisk -size=1 -type=L -unit=M -fit=BF-path="home/mis discos/Disco3.mia"-name="Particion3"
+rmdisk                 -path="/home/mis discos/Disco3.mia"
+*/

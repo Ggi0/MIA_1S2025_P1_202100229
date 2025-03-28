@@ -119,20 +119,30 @@ func analizar(entrada string) {
 	case "mkdisk":
 		if len(parametros) > 1 {
 			// ejecutar parametros
-			fmt.Println("\n ------------------------------------------------------------------------- ")
+			fmt.Println("\n\n ----------------------------------- mkdisk ----------------------------------- ")
 			AdminDisk.Mkdisk(parametros)
-			fmt.Println(" ------------------------------------------------------------------------- \n ")
+			fmt.Println(" ------------------------------------------------------------------------------ \n\n ")
 		} else {
 			// retornar un error
 			fmt.Println("\t ---> ERROR [ MK DISK ]: falta de parametros obligatorios")
+		}
+	case "rmdisk":
+		if len(parametros) > 1 {
+			// ejecutar parametros
+			fmt.Println("\n\n ----------------------------------- rmdisk ----------------------------------- ")
+			AdminDisk.Rmdisk(parametros)
+			fmt.Println(" ------------------------------------------------------------------------------ \n\n ")
+		} else {
+			// retornar un error
+			fmt.Println("\t ---> ERROR [ RM DISK ]: falta de parametros obligatorios")
 		}
 
 	case "fdisk":
 		if len(parametros) > 1 {
 			// ejecutar parametros
-			fmt.Println("\n ------------------------------------------------------------------------- ")
+			fmt.Println("\n\n ----------------------------------- fdisk ----------------------------------- ")
 			AdminDisk.Fdisk(parametros)
-			fmt.Println(" ------------------------------------------------------------------------- \n ")
+			fmt.Println(" ------------------------------------------------------------------------------ \n\n ")
 		} else {
 			// retornar un error
 			fmt.Println("\t ---> ERROR [ F DISK ]: falta de parametros obligatorios")
