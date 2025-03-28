@@ -100,68 +100,66 @@ func Mkdisk(parametros []string) {
 			break
 		}
 
-		// si se llego aqui todos los parametros estan correctos.
-		// -------------- validación de parametros CORRECTOS --------------
-		if paramCorrectos {
-			// esta información necesaria para la CREACION real del Disco
-			if sizeInit && pathInit { // validar los parametros obligatorios
-				// tamanio del disco
-				//fmt.Println("validando:  ", size, "*", unit)
-				tamanio := size * unit
-				fmt.Println("--> Tamanio del disco: ", tamanio, " Bytes.")
+	}
 
-				// nombre del disco
-				path = strings.Trim(path, `"`) // Elimina comillas si están presentes
-				ruta := strings.Split(path, "/")
-				nombreDisco := ruta[len(ruta)-1] // el ultimo valor de la ruta
+	// si se llego aqui todos los parametros estan correctos.
+	// -------------- validación de parametros CORRECTOS --------------
+	if paramCorrectos {
+		// esta información necesaria para la CREACION real del Disco
+		if sizeInit && pathInit { // validar los parametros obligatorios
+			// tamanio del disco
+			//fmt.Println("validando:  ", size, "*", unit)
+			tamanio := size * unit
+			fmt.Println("--> Tamanio del disco: ", tamanio, " Bytes.")
 
-				fmt.Println("--> Nombre del disco: ", "'", nombreDisco, "'")
+			// nombre del disco
+			path = strings.Trim(path, `"`) // Elimina comillas si están presentes
+			ruta := strings.Split(path, "/")
+			nombreDisco := ruta[len(ruta)-1] // el ultimo valor de la ruta
 
-				// en este punto tenemos todo lo necesario para crear el Disco
-				fmt.Println("--> FIT: ", fit)
+			fmt.Println("--> Nombre del disco: ", "'", nombreDisco, "'")
 
-				// CREAR EL DISCO -> hacer el archivo binario que simule el disco
-				err := Acciones.CrearDisco(path, nombreDisco)
-				if err != nil {
-					fmt.Println("\t ---> ERROR [ MK DISK ]: ", err)
-				}
+			// en este punto tenemos todo lo necesario para crear el Disco
+			fmt.Println("--> FIT: ", fit)
 
-				// ABRIR EL DISCO -> para completar su contenido inicial (MBR)
-				file, err := Acciones.OpenFile(path)
-
-				if err != nil {
-					defer file.Close()
-					return
-				}
-
-				// --> aqui se valida que el tamanio no crezca
-
-				// A traves del tamanio establecido llena de 0 hasta esa posición.
-				// cantidad de valores en binario -> del tamanio del disco que necesitamos
-				datos := make([]byte, tamanio)                 // llenar el disco de Ceros (0)
-				newErr := Acciones.WriteObject(file, datos, 0) //--> desde la posicion 0
-				if newErr != nil {
-					fmt.Println("\t ---> ERROR [ MK DISK ]: ", err)
-					defer file.Close()
-					return
-				}
-
-				// Escribir el MBR para completar el proceso de creacion del DISCO
-				file, errr := Estructuras.EscribirMBR(file, tamanio, fit)
-				if errr != nil {
-					defer file.Close()
-					return
-				}
-
-				defer file.Close()
-				fmt.Println("\n[ MK DISK ]: Proceso completado, el disco", nombreDisco, " Fue creado CORRECTAMENTE. en: ", file.Name())
-
-				break
-
+			// CREAR EL DISCO -> hacer el archivo binario que simule el disco
+			err := Acciones.CrearDisco(path, nombreDisco)
+			if err != nil {
+				fmt.Println("\t ---> ERROR [ MK DISK ]: ", err)
 			}
-		} else {
-			fmt.Println("\t ---> ERROR [ MK DISK ]: parametros ingresados incorrectamente ")
-		}
 
+			// ABRIR EL DISCO -> para completar su contenido inicial (MBR)
+			file, err := Acciones.OpenFile(path)
+
+			if err != nil {
+				defer file.Close()
+				return
+			}
+
+			// --> aqui se valida que el tamanio no crezca
+
+			// A traves del tamanio establecido llena de 0 hasta esa posición.
+			// cantidad de valores en binario -> del tamanio del disco que necesitamos
+			datos := make([]byte, tamanio)                 // llenar el disco de Ceros (0)
+			newErr := Acciones.WriteObject(file, datos, 0) //--> desde la posicion 0
+			if newErr != nil {
+				fmt.Println("\t ---> ERROR [ MK DISK ]: ", err)
+				defer file.Close()
+				return
+			}
+
+			// Escribir el MBR para completar el proceso de creacion del DISCO
+			file, errr := Estructuras.EscribirMBR(file, tamanio, fit)
+			if errr != nil {
+				defer file.Close()
+				return
+			}
+
+			defer file.Close()
+			fmt.Println("\n[ MK DISK ]: Proceso completado, el disco", nombreDisco, " Fue creado CORRECTAMENTE. en: ", file.Name())
+
+		}
+	} else {
+		fmt.Println("\t ---> ERROR [ MK DISK ]: parametros ingresados incorrectamente ")
 	}
 }
