@@ -95,10 +95,10 @@ func Fdisk(parametros []string) {
 
 			if path != "" {
 				// ruta correcta
-				processedPath := Acciones.RutaCorrecta(path)
+				path = Acciones.RutaCorrecta(path)
 
 				// nombre del disco
-				path = strings.Trim(processedPath, `"`) // Elimina comillas si están presentes
+				//path = strings.Trim(path, `"`) // Elimina comillas si están presentes
 				ruta := strings.Split(path, "/")
 				nombreDisco := ruta[len(ruta)-1] // el ultimo valor de la ruta
 
@@ -203,7 +203,7 @@ func Fdisk(parametros []string) {
 			fmt.Println(" borrar particion")
 
 		default:
-			fmt.Println("\t ---> ERROR [ F DISK ]: Accion para la Particion no valido")
+			fmt.Println("\t ---> ERROR [ F DISK ]: Accion para la Parti`cion no valido")
 		}
 
 	} else {
