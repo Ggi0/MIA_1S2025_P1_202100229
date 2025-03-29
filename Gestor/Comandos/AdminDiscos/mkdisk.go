@@ -4,6 +4,7 @@ import (
 	"Gestor/Acciones"
 	"Gestor/Estructuras"
 	"Gestor/utils"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -23,7 +24,7 @@ func Mkdisk(parametros []string) string {
 	logger := utils.NewLogger("mkdisk")
 
 	// Encabezado
-	logger.LogInfo("\t-----> [ MK DISK ] <-----")
+	logger.LogInfo("[ MK DISK ]")
 
 	var size int
 	fit := "F"      // valor por deferto FF
@@ -36,7 +37,8 @@ func Mkdisk(parametros []string) string {
 
 	// Recorriendo los paramtros
 	for _, parametro := range parametros[1:] { // a partir del primero, ya que el primero es la ruta
-		logger.LogInfo(" -> Parametro: %s", parametro)
+		fmt.Println(" -> Parametro: ", parametro)
+		//logger.LogInfo()
 
 		// token Parametro (parametro, valor) --> dos valores: ["clave", "valor"]
 		tknParam := strings.Split(parametro, "=")
@@ -112,8 +114,10 @@ func Mkdisk(parametros []string) string {
 			ruta := strings.Split(path, "/")
 			nombreDisco := ruta[len(ruta)-1] // el ultimo valor de la ruta
 
-			logger.LogInfo("--> Nombre del disco: '%s'", nombreDisco)
-			logger.LogInfo("--> FIT: %s", fit)
+			logger.LogInfo("-> Nombre del disco: '%s'", nombreDisco)
+			logger.LogInfo("-> Fit:  %s", fit)
+			logger.LogInfo("-> Unit: %s", strconv.Itoa(unit))
+			logger.LogInfo("-> Path: %s", path)
 
 			// CREAR EL DISCO -> hacer el archivo binario que simule el disco
 			err := Acciones.CrearDisco(path, nombreDisco)
