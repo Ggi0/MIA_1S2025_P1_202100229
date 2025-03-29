@@ -20,8 +20,12 @@ mkdisk
 	-unit (opcional)     Kilobytes (K)/ Megabytes (M) unidades a utilizar
 	-path (obligatoria)  ruta en donde se creará el archivo
 */
-func Mkdisk(parametros []string) {
+func Mkdisk(parametros []string) string {
+	// Buffer para capturar toda la salida
+	var output strings.Builder
+
 	fmt.Println("\t-----> [ MK DISK ] <-----")
+	output.WriteString("\t-----> [ MK DISK ] <-----\n")
 
 	var size int
 	fit := "F"      // valor por deferto FF
@@ -133,7 +137,7 @@ func Mkdisk(parametros []string) {
 
 			if err != nil {
 				defer file.Close()
-				return
+				return output.String()
 			}
 
 			// --> aqui se valida que el tamanio no crezca
@@ -145,21 +149,25 @@ func Mkdisk(parametros []string) {
 			if newErr != nil {
 				fmt.Println("\t ---> ERROR [ MK DISK ]: ", err)
 				defer file.Close()
-				return
+				return output.String()
 			}
 
 			// Escribir el MBR para completar el proceso de creacion del DISCO
 			file, errr := Estructuras.EscribirMBR(file, tamanio, fit)
 			if errr != nil {
 				defer file.Close()
-				return
+				return output.String()
 			}
 
 			defer file.Close()
 			fmt.Println("\n[ MK DISK ]: Proceso completado, el disco", nombreDisco, " Fue creado CORRECTAMENTE. en: ", file.Name())
+			output.WriteString(fmt.Sprintf("\n[ MK DISK ]: Proceso completado, el disco %s Fue creado CORRECTAMENTE. en: %s\n", nombreDisco, file.Name()))
 
 		}
 	} else {
 		fmt.Println("\t ---> ERROR [ MK DISK ]: parametros ingresados incorrectamente ")
 	}
+
+	return output.String()
+
 }

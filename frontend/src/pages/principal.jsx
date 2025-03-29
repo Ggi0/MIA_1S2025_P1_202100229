@@ -15,6 +15,7 @@ export function Principal() {
   // Estados para gestionar el contenido del archivo y la salida
   const [fileContent, setFileContent] = useState("");
   const [output, setOutput] = useState(""); // Estado para almacenar la salida
+  const [error, setError] = useState(null); // Estado para manejar errores
   
   /**
    * Maneja el comando ejecutado desde InputConsole
@@ -31,6 +32,7 @@ export function Principal() {
   const handleClear = () => {
     setFileContent("");
     setOutput("");
+    setError(null);
   };
   
   return (
@@ -39,7 +41,11 @@ export function Principal() {
       
       <div className="button-container">
         <FileUpload onFileUpload={setFileContent} />
-        <ExecuteButton fileContent={fileContent} setOutput={setOutput} />
+        <ExecuteButton 
+          fileContent={fileContent} 
+          setOutput={setOutput} 
+          setError={setError} 
+        />
         <ClearButton onClear={handleClear} />
       </div>
       
@@ -58,6 +64,9 @@ export function Principal() {
           <OutputConsole output={output} />
         </section>
       </main>
+      
+      {/* Mostrar errores si los hay */}
+      {error && <ErrorDisplay error={error} />}
       
       <Footer />
     </div>

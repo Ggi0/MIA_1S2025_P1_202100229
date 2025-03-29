@@ -24,7 +24,7 @@ permite:  crear, elimina o modificar particiones.
 		-fit   (opcional)        -Tipo de ajuste de la partición. BF (Best), FF (First) o WF (worst)
 	 	-name  (obligatorio)     -Indicará el nombre de la partición.
 */
-func Fdisk(parametros []string) {
+func Fdisk(parametros []string) error {
 	fmt.Println("\t-----> [ F DISK ] <-----")
 
 	var size int                   // Obligatorio al momento de crear, luego no.
@@ -174,7 +174,7 @@ func Fdisk(parametros []string) {
 				disco, err := Acciones.OpenFile(filepath) // se abre el Disco
 				if err != nil {
 					fmt.Println("\t ---> ERROR [ F DISK ]: No se pudo leer el disco")
-					return
+					return err
 				}
 
 				fmt.Println("-- info fdisk --")
@@ -209,4 +209,6 @@ func Fdisk(parametros []string) {
 	} else {
 		fmt.Println("\t ---> ERROR [ F DISK ]: parametros ingresados incorrectamente ")
 	}
+
+	return nil
 }
