@@ -5,7 +5,6 @@ import (
 	"Gestor/services"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,9 +16,9 @@ func AnalizarComandos(c *gin.Context) {
 	// Bind JSON Body
 	if err := c.ShouldBindJSON(&entrada); err != nil {
 		c.JSON(http.StatusBadRequest, models.Respuesta{
-			Mensaje:  "Error al procesar la solicitud",
-			Tipo:     "error",
-			Detalles: err.Error(),
+			Mensaje: "Error al procesar la solicitud",
+			Tipo:    "error",
+			Errores: []string{err.Error()},
 		})
 		return
 	}
@@ -29,53 +28,66 @@ func AnalizarComandos(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, models.Respuesta{
 			Mensaje: "No se proporcionó ningún comando para analizar",
 			Tipo:    "error",
+			Errores: []string{"No se proporcionó ningún comando para analizar"},
 		})
 		return
 	}
 
 	// Procesar cada línea del texto como un comando separado
 	lineas := services.GetLineasComando(entrada.Texto)
-	var resultados strings.Builder
+	var salidas []string
 	var errores []string
+	var comandos []string
+	var todosExitosos bool = true
 
 	for _, linea := range lineas {
 		if linea != "" {
 			// Analizar cada línea y capturar su salida
 			resultado := services.AnalizarComando(linea)
-			fmt.Println("Resultado del comando:", resultado) // Depuración
+			comandos = append(comandos, resultado.Comando)
 
-			// Verificar si el resultado contiene algún mensaje de error
-			if strings.Contains(strings.ToLower(resultado), "error") {
-				errores = append(errores, fmt.Sprintf("Error en comando: %s\n%s", linea, resultado))
+			fmt.Printf("Resultado del comando: %s\n", resultado.Comando)
+			fmt.Printf("  Éxito: %v\n", resultado.Exito)
+
+			// Si el comando generó salida, la agregamos
+			if resultado.Salida != "" {
+				salidas = append(salidas, resultado.Salida)
 			}
 
-			resultados.WriteString(resultado + "\n")
+			// Si el comando generó errores, los agregamos
+			if resultado.Errores != "" {
+				errores = append(errores, resultado.Errores)
+				todosExitosos = false
+			}
 		}
 	}
 
-	// Si hay errores, los incluimos en la respuesta
-	if len(errores) > 0 {
-		errorDetalles := strings.Join(errores, "\n\n")
-
-		c.JSON(http.StatusOK, models.Respuesta{
-			Mensaje:  "Algunos comandos tuvieron errores",
-			Tipo:     "warning",
-			Detalles: errorDetalles,
-		})
-		return
+	// Construir la respuesta
+	salidaFinal := ""
+	for _, salida := range salidas {
+		salidaFinal += salida + "\n"
 	}
 
-	// Si no hay errores, devuelve los resultados
-	salidaFinal := resultados.String()
 	if salidaFinal == "" {
-		salidaFinal = "Comando procesado pero no generó salida."
+		salidaFinal = "Comandos procesados pero no generaron salida."
+	}
+
+	// Tipo de respuesta basado en el resultado
+	tipoRespuesta := "success"
+	mensajeRespuesta := "Todos los comandos se procesaron correctamente"
+
+	if !todosExitosos {
+		tipoRespuesta = "warning"
+		mensajeRespuesta = "Algunos comandos tuvieron errores"
 	}
 
 	// Devolver los resultados al frontend
 	c.JSON(http.StatusOK, models.Respuesta{
-		Mensaje:  "Comandos procesados correctamente",
-		Tipo:     "success",
-		Detalles: salidaFinal,
+		Mensaje:  mensajeRespuesta,
+		Tipo:     tipoRespuesta,
+		Salida:   salidaFinal,
+		Errores:  errores,
+		Comandos: comandos,
 	})
 }
 

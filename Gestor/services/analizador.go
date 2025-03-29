@@ -8,13 +8,14 @@ import (
 	"unicode" // para caracteres
 
 	// administracion de discos:
-	AdminDisk "Gestor/Comandos/AdminDiscos"
+	admindiscos "Gestor/Comandos/AdminDiscos"
+	"Gestor/models"
 )
 
-// AnalizarComando procesa un comando y devuelve su salida como string
-func AnalizarComando(entrada string) string {
-	// Enfoque simplificado: procesamos directamente y devolvemos el resultado
-	return analizarEntrada(entrada)
+// AnalizarComando procesa un comando y devuelve el resultado
+func AnalizarComando(entrada string) models.ResultadoComando {
+	resultado := analizarEntrada(entrada)
+	return resultado
 }
 
 // GetLineasComando divide un texto en líneas individuales de comandos
@@ -35,10 +36,16 @@ func GetLineasComando(texto string) []string {
 /*
 Funcion que procesa una cadena de entrada para separar los parametros.
 */
-func analizarEntrada(entrada string) string {
+func analizarEntrada(entrada string) models.ResultadoComando {
 	var parametros []string    // Lista donde se almacenarán los parámetros
 	var buffer strings.Builder // Buffer para construir cada parámetro individualmente
 	enComillas := false
+
+	// Preparamos el resultado
+	resultado := models.ResultadoComando{
+		Comando: entrada,
+		Exito:   true, // Por defecto asumimos éxito
+	}
 
 	// Recorremos cada caracter de la entrada
 	for i, char := range entrada {
@@ -66,61 +73,96 @@ func analizarEntrada(entrada string) string {
 		parametros = append(parametros, buffer.String())
 	}
 
-	var resultado strings.Builder
+	var salidaNormal strings.Builder
+	var salidaError strings.Builder
+
+	// Si no hay parámetros, retornamos error
+	if len(parametros) == 0 {
+		errorMsg := "ERROR: No se proporcionó ningún comando"
+		salidaError.WriteString(errorMsg + "\n")
+		resultado.Errores = salidaError.String()
+		resultado.Exito = false
+		return resultado
+	}
 
 	switch strings.ToLower(parametros[0]) {
 	case "mkdisk":
+		salidaNormal.WriteString("\n ----------------------------------- mkdisk ----------------------------------- \n")
 		if len(parametros) > 1 {
 			// ejecutar parametros
-			resultado.WriteString("\n\n ----------------------------------- mkdisk ----------------------------------- \n")
-			// Llamar directamente a la función que devuelve un string
-			salidaMkdisk := AdminDisk.Mkdisk(parametros)
-			resultado.WriteString(salidaMkdisk)
-			resultado.WriteString("\n ------------------------------------------------------------------------------ \n\n ")
-		} else {
-			// retornar un error
-			resultado.WriteString("\t ---> ERROR [ MK DISK ]: falta de parametros obligatorios\n")
-		}
-	case "rmdisk":
-		if len(parametros) > 1 {
-			// ejecutar parametros
-			resultado.WriteString("\n\n ----------------------------------- rmdisk ----------------------------------- \n")
-			// Aquí deberíamos modificar también RmDisk para que devuelva un string
-			// Por ahora capturamos mensajes de error explícitamente
-			if err := AdminDisk.Rmdisk(parametros); err != nil {
-				resultado.WriteString(fmt.Sprintf("ERROR: %v\n", err))
+			salidaMkdisk := admindiscos.Mkdisk(parametros)
+
+			// Detectar si hay errores en la salida
+			if strings.Contains(strings.ToLower(salidaMkdisk), "error") {
+				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salidaMkdisk))
+				resultado.Exito = false
 			} else {
-				resultado.WriteString("Disco eliminado correctamente\n")
+				salidaNormal.WriteString(salidaMkdisk)
 			}
-			resultado.WriteString("\n ------------------------------------------------------------------------------ \n\n ")
 		} else {
 			// retornar un error
-			resultado.WriteString("\t ---> ERROR [ RM DISK ]: falta de parametros obligatorios\n")
+			errorMsg := "\t ---> ERROR [ MK DISK ]: falta de parametros obligatorios"
+			salidaError.WriteString(errorMsg + "\n")
+			resultado.Exito = false
 		}
+		salidaNormal.WriteString("\n ------------------------------------------------------------------------------ \n\n")
+
+	case "rmdisk":
+		salidaNormal.WriteString("\n ----------------------------------- rmdisk ----------------------------------- \n")
+		if len(parametros) > 1 {
+			// ejecutar parametros
+			if err := admindiscos.Rmdisk(parametros); err != nil {
+				errorMsg := fmt.Sprintf("ERROR: %v", err)
+				salidaError.WriteString(errorMsg + "\n")
+				resultado.Exito = false
+			} else {
+				salidaNormal.WriteString("Disco eliminado correctamente\n")
+			}
+		} else {
+			// retornar un error
+			errorMsg := "\t ---> ERROR [ RM DISK ]: falta de parametros obligatorios"
+			salidaError.WriteString(errorMsg + "\n")
+			resultado.Exito = false
+		}
+		salidaNormal.WriteString("\n ------------------------------------------------------------------------------ \n\n")
 
 	case "fdisk":
+		salidaNormal.WriteString("\n ----------------------------------- fdisk ----------------------------------- \n")
 		if len(parametros) > 1 {
 			// ejecutar parametros
-			resultado.WriteString("\n\n ----------------------------------- fdisk ----------------------------------- \n")
-			// Aquí también deberíamos modificar Fdisk para que devuelva un string
-			// Por ahora capturamos mensajes de error explícitamente
-			if err := AdminDisk.Fdisk(parametros); err != nil {
-				resultado.WriteString(fmt.Sprintf("ERROR: %v\n", err))
+			if err := admindiscos.Fdisk(parametros); err != nil {
+				errorMsg := fmt.Sprintf("ERROR: %v", err)
+				salidaError.WriteString(errorMsg + "\n")
+				resultado.Exito = false
 			} else {
-				resultado.WriteString("Partición creada correctamente\n")
+				salidaNormal.WriteString("Partición creada correctamente\n")
 			}
-			resultado.WriteString("\n ------------------------------------------------------------------------------ \n\n ")
 		} else {
 			// retornar un error
-			resultado.WriteString("\t ---> ERROR [ F DISK ]: falta de parametros obligatorios\n")
+			errorMsg := "\t ---> ERROR [ F DISK ]: falta de parametros obligatorios"
+			salidaError.WriteString(errorMsg + "\n")
+			resultado.Exito = false
 		}
+		salidaNormal.WriteString("\n ------------------------------------------------------------------------------ \n\n")
 
 	default:
-		resultado.WriteString(fmt.Sprintf("\t ---> ERROR [ ]: comando no reconocido %s\n", strings.ToLower(parametros[0])))
+		errorMsg := fmt.Sprintf("\t ---> ERROR [ ]: comando no reconocido %s", strings.ToLower(parametros[0]))
+		salidaError.WriteString(errorMsg + "\n")
+		resultado.Exito = false
 	}
 
-	// Este printf es solo para debugging en la consola del servidor
-	fmt.Printf("Resultado del análisis: %s\n", resultado.String())
+	// Establecer la salida normal y los errores
+	resultado.Salida = salidaNormal.String()
+	resultado.Errores = salidaError.String()
 
-	return resultado.String()
+	// Este printf es solo para debugging en la consola del servidor
+	fmt.Printf("Comando: %s, Éxito: %v\n", entrada, resultado.Exito)
+	if resultado.Salida != "" {
+		fmt.Printf("Salida:\n%s\n", resultado.Salida)
+	}
+	if resultado.Errores != "" {
+		fmt.Printf("Errores:\n%s\n", resultado.Errores)
+	}
+
+	return resultado
 }

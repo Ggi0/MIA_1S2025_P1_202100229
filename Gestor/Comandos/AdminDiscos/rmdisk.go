@@ -1,4 +1,4 @@
-package Comandos
+package AdminDiscos
 
 import (
 	"fmt"
