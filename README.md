@@ -3,11 +3,11 @@ Aplicación web para gestionar un sistema de archivos EXT2, usando React para el
 
 
 
-# 📌 Configuración y Estructura del Backend con Gin
+# Configuración y Estructura del Backend con Gin
 
 Configuración inicial y la estructura del backend utilizando el framework Gin en Go.
 
-## 🚀 Instalación de Dependencias
+## Instalación de Dependencias
 Antes de comenzar, asegúrate de instalar Gin y otras dependencias necesarias ejecutando los siguientes comandos en la raíz de tu proyecto:
 
 ```sh
@@ -56,7 +56,7 @@ Gestor/
 
 ---
 
-## ▶️ Ejecutar el Backend
+## Ejecutar el Backend
 Para iniciar el servidor, ejecuta el siguiente comando dentro de la carpeta `Gestor`:
 
 ```sh
@@ -67,7 +67,7 @@ Este comando iniciará el servidor con Gin y habilitará la API para recibir sol
 
 ---
 
-## 📌 Notas
+## Notas
 - **Modularidad:** La estructura del proyecto permite una mejor organización y escalabilidad.
 - **Seguridad:** Se recomienda manejar correctamente los permisos de ejecución, evitando el uso de `sudo` si no es necesario.
 - **Manejo de errores:** Se deben implementar validaciones adecuadas en los controladores y servicios para evitar fallos inesperados.

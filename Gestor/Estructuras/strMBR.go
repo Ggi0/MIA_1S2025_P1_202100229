@@ -78,31 +78,32 @@ func EscribirMBR(file *os.File, tam int, fit string) (*os.File, error) {
 
 // PrintMBRToString convierte la información del MBR a una cadena de texto
 func PrintMBRToString(data MBR) string {
-	var output strings.Builder
 
-	output.WriteString("==================================\n")
-	output.WriteString("            Disco                \n")
-	output.WriteString("==================================\n")
-	output.WriteString(fmt.Sprintf("Fecha de creación: %s\n", string(data.Mbr_creation_date[:])))
-	output.WriteString(fmt.Sprintf("Tipo de ajuste (Fit): %s\n", string(data.Mbr_disk_fit[:])))
-	output.WriteString(fmt.Sprintf("Tamaño del disco: %d Bytes\n", data.Mbr_tamanio))
-	output.WriteString(fmt.Sprintf("ID del disco: %d\n", data.Mbr_disk_signature))
-	output.WriteString("----------------------------------\n")
-	output.WriteString("          Particiones             \n")
-	output.WriteString("----------------------------------\n")
+	var salidaNormal strings.Builder
+
+	salidaNormal.WriteString("==================================\n")
+	salidaNormal.WriteString("            Disco                \n")
+	salidaNormal.WriteString("==================================\n")
+	salidaNormal.WriteString(fmt.Sprintf("Fecha de creación: %s\n", string(data.Mbr_creation_date[:])))
+	salidaNormal.WriteString(fmt.Sprintf("Tipo de ajuste (Fit): %s\n", string(data.Mbr_disk_fit[:])))
+	salidaNormal.WriteString(fmt.Sprintf("Tamaño del disco: %d Bytes\n", data.Mbr_tamanio))
+	salidaNormal.WriteString(fmt.Sprintf("ID del disco: %d\n", data.Mbr_disk_signature))
+	salidaNormal.WriteString("----------------------------------\n")
+	salidaNormal.WriteString("          Particiones             \n")
+	salidaNormal.WriteString("----------------------------------\n")
 
 	for i := 0; i < 4; i++ {
-		output.WriteString(fmt.Sprintf("Partición %d:\n", i+1))
-		output.WriteString(fmt.Sprintf("\tNombre: %s\n", string(data.Mbr_partitions[i].Part_name[:])))
-		output.WriteString(fmt.Sprintf("\tTipo:   %s\n", string(data.Mbr_partitions[i].Part_type[:])))
-		output.WriteString(fmt.Sprintf("\tInicio: %d\n", data.Mbr_partitions[i].Part_start))
-		output.WriteString(fmt.Sprintf("\tTamaño: %d Bytes\n", data.Mbr_partitions[i].Part_size))
-		output.WriteString(fmt.Sprintf("\tAjuste: %s\n", string(data.Mbr_partitions[i].Part_fit[:])))
-		output.WriteString(fmt.Sprintf("\tCorrelativo: %d\n", data.Mbr_partitions[i].Part_correlative))
+		salidaNormal.WriteString(fmt.Sprintf("Partición %d:\n", i+1))
+		salidaNormal.WriteString(fmt.Sprintf("\tNombre: %s\n", string(data.Mbr_partitions[i].Part_name[:])))
+		salidaNormal.WriteString(fmt.Sprintf("\tTipo:   %s\n", string(data.Mbr_partitions[i].Part_type[:])))
+		salidaNormal.WriteString(fmt.Sprintf("\tInicio: %d\n", data.Mbr_partitions[i].Part_start))
+		salidaNormal.WriteString(fmt.Sprintf("\tTamaño: %d Bytes\n", data.Mbr_partitions[i].Part_size))
+		salidaNormal.WriteString(fmt.Sprintf("\tAjuste: %s\n", string(data.Mbr_partitions[i].Part_fit[:])))
+		salidaNormal.WriteString(fmt.Sprintf("\tCorrelativo: %d\n", data.Mbr_partitions[i].Part_correlative))
 	}
-	output.WriteString("----------------------------------\n")
+	salidaNormal.WriteString("----------------------------------\n")
 
-	return output.String()
+	return salidaNormal.String()
 }
 
 // PrintMBR imprime la información del MBR en la consola y también devuelve la misma como string

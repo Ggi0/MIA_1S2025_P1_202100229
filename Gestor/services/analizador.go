@@ -111,16 +111,18 @@ func analizarEntrada(entrada string) models.ResultadoComando {
 		salidaNormal.WriteString("\n ----------------------------------- rmdisk ----------------------------------- \n")
 		if len(parametros) > 1 {
 			// ejecutar parametros
-			if err := admindiscos.Rmdisk(parametros); err != nil {
-				errorMsg := fmt.Sprintf("ERROR: %v", err)
-				salidaError.WriteString(errorMsg + "\n")
+			salidaRmdisk := admindiscos.Rmdisk(parametros)
+
+			// Detectar si hay errores en la salida
+			if strings.Contains(strings.ToLower(salidaRmdisk), "error") {
+				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salidaRmdisk))
 				resultado.Exito = false
 			} else {
-				salidaNormal.WriteString("Disco eliminado correctamente\n")
+				salidaNormal.WriteString(salidaRmdisk)
 			}
 		} else {
 			// retornar un error
-			errorMsg := "\t ---> ERROR [ RM DISK ]: falta de parametros obligatorios"
+			errorMsg := "\t ---> ERROR [ MK DISK ]: falta de parametros obligatorios"
 			salidaError.WriteString(errorMsg + "\n")
 			resultado.Exito = false
 		}
@@ -130,16 +132,18 @@ func analizarEntrada(entrada string) models.ResultadoComando {
 		salidaNormal.WriteString("\n ----------------------------------- fdisk ----------------------------------- \n")
 		if len(parametros) > 1 {
 			// ejecutar parametros
-			if err := admindiscos.Fdisk(parametros); err != nil {
-				errorMsg := fmt.Sprintf("ERROR: %v", err)
-				salidaError.WriteString(errorMsg + "\n")
+			salidaFdisk := admindiscos.Fdisk(parametros)
+
+			// Detectar si hay errores en la salida
+			if strings.Contains(strings.ToLower(salidaFdisk), "error") {
+				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salidaFdisk))
 				resultado.Exito = false
 			} else {
-				salidaNormal.WriteString("Partición creada correctamente\n")
+				salidaNormal.WriteString(salidaFdisk)
 			}
 		} else {
 			// retornar un error
-			errorMsg := "\t ---> ERROR [ F DISK ]: falta de parametros obligatorios"
+			errorMsg := "\t ---> ERROR [ MK DISK ]: falta de parametros obligatorios"
 			salidaError.WriteString(errorMsg + "\n")
 			resultado.Exito = false
 		}
