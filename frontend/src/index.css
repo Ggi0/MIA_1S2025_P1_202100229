@@ -84,6 +84,39 @@ button:hover {
   gap: 10px;
 }
 
+
+/* Contenedor específico para errores */
+.error-console {
+  background-color: rgba(255, 0, 38, 0.475); /* Fondo rojo claro con transparencia */
+  color: #c62828; /* Texto rojo oscuro */
+  padding: 1px;
+  border: 1px solid #ff0000; /* Borde rojo claro */
+  border-radius: 4px; /* Bordes redondeados */
+  margin: 1px 0;
+  overflow-y: auto;
+  max-height: 100px; /* Limitar la altura */
+  font-family: 'Courier New', monospace; /* Tipografía monoespaciada */
+}
+
+/* Estilo de cada error individual */
+.error-console .error-item {
+  margin-bottom: 10px; /* Espacio entre errores */
+}
+
+/* Separador entre errores */
+.error-console .error-item hr {
+  border: none;
+  border-top: 1px dashed #010000; /* Línea punteada roja */
+  margin: 5px 0;
+}
+
+/* Texto envuelto y ajustado */
+.error-console pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+}
+
 /* Footer */
 footer {
   background-color: rgba(30, 30, 30, 0.8); /* Fondo oscuro semi-transparente */
