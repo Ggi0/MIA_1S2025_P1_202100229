@@ -25,7 +25,7 @@ func Mkdisk(parametros []string) string {
 	var output strings.Builder
 
 	fmt.Println("\t-----> [ MK DISK ] <-----")
-	output.WriteString("\t-----> [ MK DISK ] <-----\n")
+	//output.WriteString("\t-----> [ MK DISK ] <-----\n")
 
 	var size int
 	fit := "F"      // valor por deferto FF
@@ -44,7 +44,9 @@ func Mkdisk(parametros []string) string {
 
 		// si el token parametro no tiene su identificador y valor es un error
 		if len(tknParam) != 2 {
-			fmt.Println("\t ---> ERROR [ MK DISK ]: Valor desconocido del parametro, mas de 2 valores para: ", tknParam[0])
+			errorMsg := fmt.Sprintf("ERROR [ MK DISK ]: Valor desconocido del parametro, mas de 2 valores para: %s", tknParam[0])
+			fmt.Println(errorMsg)
+			output.WriteString(errorMsg + "\n")
 			paramCorrectos = false
 			break // sale de analizar el parametro y no lo ejecuta
 		}
@@ -56,15 +58,16 @@ func Mkdisk(parametros []string) string {
 			var err error                         // variable para el error posible
 			size, err = strconv.Atoi(tknParam[1]) // string a int
 			if err != nil {
-				log.Fatal(err)
-			}
-
-			if err != nil {
-				fmt.Println("\t ---> ERROR [ MK DISK ]: size debe ser un valor numerico. Se leyo: ", tknParam[1])
+				errorMsg := fmt.Sprintf("ERROR [ MK DISK ]: size debe ser un valor numerico. Se leyo: %s", tknParam[1])
+				fmt.Println(errorMsg)
+				output.WriteString(errorMsg + "\n")
+				log.Println(err) // Solo log para debugging
 				paramCorrectos = false
 				break
 			} else if size <= 0 {
-				fmt.Println("\t ---> ERROR [ MK DISK ]: size debe ser mayor a cero. se leyo: ", tknParam[1])
+				errorMsg := fmt.Sprintf("ERROR [ MK DISK ]: size debe ser mayor a cero. se leyo: %s", tknParam[1])
+				fmt.Println(errorMsg)
+				output.WriteString(errorMsg + "\n")
 				paramCorrectos = false
 				break
 			}
@@ -78,7 +81,9 @@ func Mkdisk(parametros []string) string {
 				fit = "W"
 
 			} else if strings.ToLower(tknParam[1]) != "ff" { //Si el ajuste es diferente a ff es distinto es un error
-				fmt.Println("\t ---> ERROR [ MK DISK ]: para FIT los valores aceptados son: BF, FF o WF. ingreso: ", tknParam[1])
+				errorMsg := fmt.Sprintf("ERROR [ MK DISK ]: para FIT los valores aceptados son: BF, FF o WF. ingreso: %s", tknParam[1])
+				fmt.Println(errorMsg)
+				output.WriteString(errorMsg + "\n")
 				paramCorrectos = false
 				break
 			}
@@ -88,7 +93,9 @@ func Mkdisk(parametros []string) string {
 			if strings.ToLower(tknParam[1]) == "k" {
 				unit = 1024 // bites
 			} else if strings.ToLower(tknParam[1]) != "m" {
-				fmt.Println("\t ---> ERROR [ MK DISK ]: para UNIT los valores aceptados son: K y M. ingreso: ", tknParam[1])
+				errorMsg := fmt.Sprintf("ERROR [ MK DISK ]: para UNIT los valores aceptados son: K y M. ingreso: %s", tknParam[1])
+				fmt.Println(errorMsg)
+				output.WriteString(errorMsg + "\n")
 				paramCorrectos = false
 				break
 			}
@@ -99,7 +106,9 @@ func Mkdisk(parametros []string) string {
 			// TODO: validar errores, por ejemplo la ruta existe?
 
 		default:
-			fmt.Println("\t ---> ERROR [ MK DISK ]: parametro desconocido: ", tknParam[0])
+			errorMsg := fmt.Sprintf("\t ---> ERROR [ MK DISK ]: parametro desconocido: %s", tknParam[0])
+			fmt.Println(errorMsg)
+			output.WriteString(errorMsg + "\n")
 			paramCorrectos = false
 			break
 		}
@@ -114,29 +123,44 @@ func Mkdisk(parametros []string) string {
 			// tamanio del disco
 			//fmt.Println("validando:  ", size, "*", unit)
 			tamanio := size * unit
-			fmt.Println("--> Tamanio del disco: ", tamanio, " Bytes.")
+			tamanioMsg := fmt.Sprintf("-> Tamanio del disco: %d Bytes.", tamanio)
+			fmt.Println(tamanioMsg)
+			output.WriteString(tamanioMsg + "\n")
 
 			// nombre del disco
 			path = strings.Trim(path, `"`) // Elimina comillas si están presentes
 			ruta := strings.Split(path, "/")
 			nombreDisco := ruta[len(ruta)-1] // el ultimo valor de la ruta
 
-			fmt.Println("--> Nombre del disco: ", "'", nombreDisco, "'")
+			nombreMsg := fmt.Sprintf("--> Nombre del disco: '%s'", nombreDisco)
+			fmt.Println(nombreMsg)
+			output.WriteString(nombreMsg + "\n")
 
 			// en este punto tenemos todo lo necesario para crear el Disco
 			fmt.Println("--> FIT: ", fit)
+			fitMsg := fmt.Sprintf("--> FIT: %s", fit)
+			fmt.Println(fitMsg)
+			output.WriteString(fitMsg + "\n")
 
 			// CREAR EL DISCO -> hacer el archivo binario que simule el disco
 			err := Acciones.CrearDisco(path, nombreDisco)
 			if err != nil {
-				fmt.Println("\t ---> ERROR [ MK DISK ]: ", err)
+				errorMsg := fmt.Sprintf("ERROR [ MK DISK ]: %v", err)
+				fmt.Println(errorMsg)
+				output.WriteString(errorMsg + "\n")
+				return output.String()
 			}
 
 			// ABRIR EL DISCO -> para completar su contenido inicial (MBR)
 			file, err := Acciones.OpenFile(path)
 
 			if err != nil {
-				defer file.Close()
+				errorMsg := fmt.Sprintf("ERROR [ MK DISK ]: No se pudo abrir el disco: %v", err)
+				fmt.Println(errorMsg)
+				output.WriteString(errorMsg + "\n")
+				if file != nil {
+					defer file.Close()
+				}
 				return output.String()
 			}
 
@@ -147,7 +171,9 @@ func Mkdisk(parametros []string) string {
 			datos := make([]byte, tamanio)                 // llenar el disco de Ceros (0)
 			newErr := Acciones.WriteObject(file, datos, 0) //--> desde la posicion 0
 			if newErr != nil {
-				fmt.Println("\t ---> ERROR [ MK DISK ]: ", err)
+				errorMsg := fmt.Sprintf("\t ---> ERROR [ MK DISK ]: Error al escribir datos: %v", newErr)
+				fmt.Println(errorMsg)
+				output.WriteString(errorMsg + "\n")
 				defer file.Close()
 				return output.String()
 			}
@@ -155,17 +181,28 @@ func Mkdisk(parametros []string) string {
 			// Escribir el MBR para completar el proceso de creacion del DISCO
 			file, errr := Estructuras.EscribirMBR(file, tamanio, fit)
 			if errr != nil {
+				errorMsg := fmt.Sprintf("\t ---> ERROR [ MK DISK ]: Error al escribir MBR: %v", errr)
+				fmt.Println(errorMsg)
+				output.WriteString(errorMsg + "\n")
 				defer file.Close()
 				return output.String()
 			}
 
 			defer file.Close()
-			fmt.Println("\n[ MK DISK ]: Proceso completado, el disco", nombreDisco, " Fue creado CORRECTAMENTE. en: ", file.Name())
-			output.WriteString(fmt.Sprintf("\n[ MK DISK ]: Proceso completado, el disco %s Fue creado CORRECTAMENTE. en: %s\n", nombreDisco, file.Name()))
-
+			successMsg := fmt.Sprintf("\n[ MK DISK ]: Proceso completado, el disco %s Fue creado CORRECTAMENTE. en: %s", nombreDisco, file.Name())
+			fmt.Println(successMsg)
+			output.WriteString(successMsg + "\n")
+		} else {
+			// Faltan parámetros obligatorios
+			errorMsg := "ERROR [ MK DISK ]: Faltan parámetros obligatorios (size y/o path)"
+			fmt.Println(errorMsg)
+			output.WriteString(errorMsg + "\n")
 		}
 	} else {
-		fmt.Println("\t ---> ERROR [ MK DISK ]: parametros ingresados incorrectamente ")
+		// Parámetros incorrectos
+		errorMsg := "\t ---> ERROR [ MK DISK ]: parámetros ingresados incorrectamente"
+		fmt.Println(errorMsg)
+		output.WriteString(errorMsg + "\n")
 	}
 
 	return output.String()

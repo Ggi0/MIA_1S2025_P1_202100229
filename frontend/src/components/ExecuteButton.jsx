@@ -1,6 +1,3 @@
-
-// Un botón separado que ejecuta toda la lógica de comandos cuando se presiona.
-
 import { analizarTexto } from "../api/api";
 import { useState } from "react";
 
@@ -8,6 +5,7 @@ import { useState } from "react";
  * Componente para el botón de ejecución
  * @param {string} fileContent - El contenido del área de texto que se enviará al backend
  * @param {function} setOutput - Función para establecer la salida en el componente OutputConsole
+ * @param {function} setError - Función para establecer errores
  */
 export function ExecuteButton({ fileContent, setOutput, setError }) {
     const [isProcessing, setIsProcessing] = useState(false);
@@ -24,7 +22,7 @@ export function ExecuteButton({ fileContent, setOutput, setError }) {
 
         setIsProcessing(true);
         setOutput("Procesando comandos...");
-        setError(null);
+        setError(null); // Limpiar errores anteriores
 
         try {
             // Enviar el texto al backend para su análisis
@@ -34,14 +32,16 @@ export function ExecuteButton({ fileContent, setOutput, setError }) {
             // Mostrar el texto procesado que viene del backend
             if (respuesta.data.tipo === "success") {
                 setOutput(respuesta.data.detalles || respuesta.data.mensaje);
-                setError(null);
+                setError(null); // Asegurarse de que no hay errores
             } else if (respuesta.data.tipo === "warning") {
+                // Para warnings, mostrar los detalles en la consola y el mensaje de warning en la sección de errores
                 setOutput(respuesta.data.detalles || "");
                 setError({
                     mensaje: respuesta.data.mensaje,
                     tipo: "warning"
                 });
             } else {
+                // Para errores, limpiar la consola y mostrar el mensaje de error
                 setOutput("");
                 setError({
                     mensaje: respuesta.data.mensaje,
@@ -77,7 +77,7 @@ export function ExecuteButton({ fileContent, setOutput, setError }) {
                 });
             }
             
-            setOutput("");
+            setOutput(""); // Limpiar la salida en caso de error
             console.error("Error al enviar datos al servidor:", error);
         } finally {
             setIsProcessing(false);
@@ -88,7 +88,6 @@ export function ExecuteButton({ fileContent, setOutput, setError }) {
         <button 
             onClick={handleExecute} 
             disabled={isProcessing}
-            className={isProcessing ? "button-processing" : ""}
         >
             {isProcessing ? "Procesando..." : "Ejecutar"}
         </button>

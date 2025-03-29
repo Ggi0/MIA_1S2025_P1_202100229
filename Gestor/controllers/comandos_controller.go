@@ -36,7 +36,7 @@ func AnalizarComandos(c *gin.Context) {
 	// Procesar cada línea del texto como un comando separado
 	lineas := services.GetLineasComando(entrada.Texto)
 	var resultados strings.Builder
-	var errores []models.ComandoError
+	var errores []string
 
 	for _, linea := range lineas {
 		if linea != "" {
@@ -46,12 +46,7 @@ func AnalizarComandos(c *gin.Context) {
 
 			// Verificar si el resultado contiene algún mensaje de error
 			if strings.Contains(strings.ToLower(resultado), "error") {
-				errores = append(errores, *models.NewComandoError(
-					resultado,
-					"comando",
-					linea,
-					"Error al ejecutar el comando",
-				))
+				errores = append(errores, fmt.Sprintf("Error en comando: %s\n%s", linea, resultado))
 			}
 
 			resultados.WriteString(resultado + "\n")
@@ -60,15 +55,12 @@ func AnalizarComandos(c *gin.Context) {
 
 	// Si hay errores, los incluimos en la respuesta
 	if len(errores) > 0 {
-		errorDetalles := make([]string, len(errores))
-		for i, err := range errores {
-			errorDetalles[i] = err.Mensaje
-		}
+		errorDetalles := strings.Join(errores, "\n\n")
 
 		c.JSON(http.StatusOK, models.Respuesta{
-			Mensaje:  "Comandos procesados con errores",
+			Mensaje:  "Algunos comandos tuvieron errores",
 			Tipo:     "warning",
-			Detalles: resultados.String(),
+			Detalles: errorDetalles,
 		})
 		return
 	}
