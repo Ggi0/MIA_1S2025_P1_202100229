@@ -2,13 +2,13 @@ package AdminDiscos
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"strings"
 
 	"Gestor/Acciones"
 	"Gestor/Estructuras"
+	"Gestor/utils"
 )
 
 /*
@@ -24,8 +24,12 @@ permite:  crear, elimina o modificar particiones.
 		-fit   (opcional)        -Tipo de ajuste de la partición. BF (Best), FF (First) o WF (worst)
 	 	-name  (obligatorio)     -Indicará el nombre de la partición.
 */
-func Fdisk(parametros []string) error {
-	fmt.Println("\t-----> [ F DISK ] <-----")
+func Fdisk(parametros []string) string {
+	// Crear un logger para este comando
+	logger := utils.NewLogger("fdisk")
+
+	// Encabezado
+	logger.LogInfo("[ F DISK ]")
 
 	var size int                   // Obligatorio al momento de crear, luego no.
 	var unit int = 1024            // Kilobytes por defecto, 1024 bytes
@@ -49,9 +53,8 @@ func Fdisk(parametros []string) error {
 
 		// si el token parametro no tiene su identificador y valor es un error
 		if len(tknParam) != 2 {
-			fmt.Println("\t ---> ERROR [ F DISK ]: Valor desconocido del parametro, mas de 2 valores para: ", tknParam[0])
-			paramCorrectos = false
-			break // sale de analizar el parametro y no lo ejecuta
+			logger.LogError("ERROR [ F DISK ]: Valor desconocido del parametro, más de 2 valores para: %s", tknParam[0])
+			return logger.GetErrors()
 		}
 
 		// ---------- VALIDANDO PARAMATROS ---------------------
@@ -64,16 +67,11 @@ func Fdisk(parametros []string) error {
 			size, err = strconv.Atoi(tknParam[1]) // string a int
 
 			if err != nil {
-				paramCorrectos = false
-				log.Fatal(err)
-			}
-
-			if err != nil {
-				fmt.Println("\t ---> ERROR [ F DISK ]: size debe ser un valor numerico. Se leyo: ", tknParam[1])
+				logger.LogError("ERROR [ F DISK ]: size debe ser un valor numerico. Se leyo: %s", tknParam[1])
 				paramCorrectos = false
 				break
 			} else if size <= 0 {
-				fmt.Println("\t ---> ERROR [ F DISK ]: size debe ser mayor a cero. se leyo: ", tknParam[1])
+				logger.LogError("ERROR [ F DISK ]: size debe ser mayor a cero. se leyo: %s", tknParam[1])
 				paramCorrectos = false
 				break
 			}
@@ -85,7 +83,7 @@ func Fdisk(parametros []string) error {
 			} else if strings.ToLower(tknParam[1]) == "m" {
 				unit = 1048576 // 1024*1024
 			} else if strings.ToLower(tknParam[1]) != "k" {
-				fmt.Println("\t ---> ERROR [ F DISK ]: en -unit. Valores aceptados: b, k, m. ingreso: ", tknParam[1])
+				logger.LogError("ERROR [ F DISK ]: en -unit. Valores aceptados: b, k, m. ingreso: %s", tknParam[1])
 				paramCorrectos = false
 				break
 			}
@@ -95,6 +93,8 @@ func Fdisk(parametros []string) error {
 
 			if path != "" {
 				// ruta correcta
+				path = tknParam[1]
+				path = strings.Trim(path, `"`) // Elimina comillas si están presentes
 				path = Acciones.RutaCorrecta(path)
 
 				// nombre del disco
@@ -106,12 +106,12 @@ func Fdisk(parametros []string) error {
 
 				_, err := os.Stat(path)
 				if os.IsNotExist(err) {
-					fmt.Println("\t ---> ERROR [ F DISK ]: El disco ", nombreDisco, " no existe")
+					logger.LogError("ERROR [ F DISK ]: El disco %s no existe", nombreDisco)
 					paramCorrectos = false
 					break // Terminar el bucle porque encontramos un nombre único
 				}
 			} else {
-				fmt.Println("\t ---> ERROR [ F DISK ]: error en ruta")
+				logger.LogError("ERROR [ F DISK ]: error en ruta")
 				paramCorrectos = false
 				break
 			}
@@ -123,7 +123,7 @@ func Fdisk(parametros []string) error {
 			} else if strings.ToLower(tknParam[1]) == "l" {
 				typePartition = "L"
 			} else if strings.ToLower(tknParam[1]) != "p" {
-				fmt.Println("\t ---> ERROR [ F DISK ]: en -type. Valores aceptados: e, l, p. ingreso: ", tknParam[1])
+				logger.LogError("ERROR [ F DISK ]: en -type. Valores aceptados: e, l, p. ingreso: %s", tknParam[1])
 				paramCorrectos = false
 				break
 			}
@@ -136,7 +136,7 @@ func Fdisk(parametros []string) error {
 				fit = "F"
 				//Si el ajuste es ff ya esta definido por lo que si es distinto es un error
 			} else if strings.ToLower(tknParam[1]) != "wf" {
-				fmt.Println("\t ---> ERROR [ F DISK ]: en -fit. Valores aceptados: BF, FF o WF. ingreso: ", tknParam[1])
+				logger.LogError("ERROR [ F DISK ]: en -fit. Valores aceptados: BF, FF o WF. ingreso: %s", tknParam[1])
 				paramCorrectos = false
 				break
 			}
@@ -146,16 +146,16 @@ func Fdisk(parametros []string) error {
 			name = strings.ReplaceAll(tknParam[1], "\"", "")
 			// Eliminar espacios en blanco al final
 			name = strings.TrimSpace(name)
-			if path != "" {
+			if name != "" {
 				nameInit = true
 			} else {
-				fmt.Println("\t ---> ERROR [ F DISK ]: name obligatorio")
+				logger.LogError("ERROR [ F DISK ]: name parametro obligatorio, no se permite vacio")
 				paramCorrectos = false
 				break
 			}
 
 		default:
-			fmt.Println("\t ---> ERROR [ F DISK ]: parametro desconocido: ", tknParam[0])
+			logger.LogError("ERROR [ F DISK ]: parametro desconocido: %s", tknParam[0])
 			paramCorrectos = false
 			break
 		}
@@ -173,16 +173,16 @@ func Fdisk(parametros []string) error {
 				filepath := path
 				disco, err := Acciones.OpenFile(filepath) // se abre el Disco
 				if err != nil {
-					fmt.Println("\t ---> ERROR [ F DISK ]: No se pudo leer el disco")
-					return err
+					logger.LogError("ERROR [ F DISK ]: No se pudo leer el disco")
+					return logger.GetErrors()
 				}
 
-				fmt.Println("-- info fdisk --")
-				fmt.Println("Size: ", size)
-				fmt.Println("Unit: ", unit)
-				fmt.Println("type: ", typePartition)
-				fmt.Println("fit: ", fit)
-				fmt.Println("name: ", name)
+				//fmt.Println("-- info fdisk --")
+				logger.LogInfo("Size: %s", strconv.Itoa(size))
+				logger.LogInfo("Unit: %s", strconv.Itoa(unit))
+				logger.LogInfo("type: %s", typePartition)
+				logger.LogInfo("fit:  %s", fit)
+				logger.LogInfo("name: %s", name)
 
 				// EscribirParticion(disco *os.File, typePartition string, name string, size int, unit int, fit string)
 				Estructuras.EscribirParticion(disco, typePartition, name, size, unit, fit)
@@ -190,10 +190,10 @@ func Fdisk(parametros []string) error {
 				defer disco.Close() // cerrar el disco
 				//				fmt.Println("\n[ MK DISK ]: Proceso completado, el disco", nombreDisco, " Fue creado CORRECTAMENTE. en: ", file.Name())
 
-				fmt.Println("\n[ F DISK ]: Proceso completado, la particion:  \"" + name + "\" Fue creado CORRECTAMENTE en el disco: \"" + disco.Name() + "\"")
+				logger.LogSuccess("\n[ F DISK ]: Proceso completado, la particion:  %s Fue creado CORRECTAMENTE en el disco: %s", name, disco.Name())
 
 			} else {
-				fmt.Println("\t ---> ERROR [ F DISK ]: parametros minimos obligatirios incompletos")
+				logger.LogError("ERROR [ F DISK ]: parametros minimos obligatirios incompletos")
 			}
 
 		case 1: // editar particion
@@ -203,12 +203,16 @@ func Fdisk(parametros []string) error {
 			fmt.Println(" borrar particion")
 
 		default:
-			fmt.Println("\t ---> ERROR [ F DISK ]: Accion para la Parti`cion no valido")
+			logger.LogError("ERROR [ F DISK ]: Accion para la Parti`cion no valido")
 		}
 
 	} else {
-		fmt.Println("\t ---> ERROR [ F DISK ]: parametros ingresados incorrectamente ")
+		logger.LogError("ERROR [ F DISK ]: parametros ingresados incorrectamente ")
 	}
 
-	return nil
+	// Al final de la función:
+	if logger.HasErrors() {
+		return logger.GetErrors()
+	}
+	return logger.GetOutput()
 }
