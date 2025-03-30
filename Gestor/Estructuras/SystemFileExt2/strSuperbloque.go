@@ -3,6 +3,7 @@ package SystemFileExt2
 import (
 	"Gestor/Acciones"
 	"Gestor/Estructuras"
+	"Gestor/utils"
 	"encoding/binary"
 	"fmt"
 	"os"
@@ -29,7 +30,7 @@ type Superblock struct {
 	S_block_start       int32    //inicio de la tabla de bloques
 }
 
-func CrearEXT2(n int32, particion Estructuras.Partition, newSuperBloque Superblock, date string, file *os.File) {
+func CrearEXT2(n int32, particion Estructuras.Partition, newSuperBloque Superblock, date string, file *os.File, logger *utils.Logger) bool {
 	fmt.Println("Superbloque: ", newSuperBloque)
 	fmt.Println("Fecha: ", date)
 
@@ -38,12 +39,16 @@ func CrearEXT2(n int32, particion Estructuras.Partition, newSuperBloque Superblo
 
 	//tipo del sistema de archivos
 	newSuperBloque.S_filesystem_type = 2 //2 -> EXT2; 3 -> EXT3
+
 	//Bitmap Inodos inicia donde termina el superbloque fisicamente (y el superbloque esta al inicio de la particion)
 	newSuperBloque.S_bm_inode_start = particion.Part_start + int32(binary.Size(Superblock{}))
+
 	//Bitmap bloques inicia donde termina el de inodos. Se suma n que es el numero de inodos maximo
 	newSuperBloque.S_bm_block_start = newSuperBloque.S_bm_inode_start + n
+
 	//Se crea el primer Inodo. Esta al final de los bloques que son 3 veces el numero de inodos
 	newSuperBloque.S_inode_start = newSuperBloque.S_bm_block_start + 3*n
+
 	//Se crea el primer bloque, este esta al final de los inodos fisicos
 	newSuperBloque.S_block_start = newSuperBloque.S_inode_start + n*int32(binary.Size(Inode{}))
 
@@ -55,6 +60,7 @@ func CrearEXT2(n int32, particion Estructuras.Partition, newSuperBloque Superblo
 	//primer inodo libre
 	//newSuperBloque.S_first_ino = newSuperBloque.S_inode_start + 2*int32(binary.Size(Inode{})) //multiplico por 2 porque hay 2 inodos creados
 	newSuperBloque.S_first_ino = int32(2)
+
 	//primer bloque libre
 	//newSuperBloque.S_first_blo = newSuperBloque.S_block_start + 2*int32(binary.Size(Fileblock{})) //multiplicar por 2 porque hay 2 bloques creados
 	newSuperBloque.S_first_blo = int32(2)
@@ -63,19 +69,24 @@ func CrearEXT2(n int32, particion Estructuras.Partition, newSuperBloque Superblo
 	bmInodeData := make([]byte, n)
 	bmInodeErr := Acciones.WriteObject(file, bmInodeData, int64(newSuperBloque.S_bm_inode_start))
 	if bmInodeErr != nil {
-		fmt.Println("MKFS Error: ", bmInodeErr)
-		return
+		logger.LogError("ERROR [ MKFS ]: %s", bmInodeErr)
+		return false
 	}
 
 	//limpiar (formatear) el espacio del bitmap de bloques para evitar inconsistencias
 	bmBlockData := make([]byte, 3*n)
 	bmBlockErr := Acciones.WriteObject(file, bmBlockData, int64(newSuperBloque.S_bm_block_start))
 	if bmBlockErr != nil {
-		fmt.Println("MKFS Error: ", bmInodeErr)
-		return
+		fmt.Println("ERROR [ MKFS ]: ", bmInodeErr)
+		return false
 	}
 
-	//creo un inodo y lleno el arreglo de bloques con -1
+	/*
+		Inicializa todos los inodos:
+
+			Crea un inodo "plantilla" con todos los apuntadores a bloques en -1
+			Escribe esta plantilla para todos los inodos posibles
+	*/
 	var newInode Inode
 	for i := 0; i < 15; i++ {
 		newInode.I_block[i] = -1
@@ -85,8 +96,8 @@ func CrearEXT2(n int32, particion Estructuras.Partition, newSuperBloque Superblo
 	for i := int32(0); i < n; i++ {
 		err := Acciones.WriteObject(file, newInode, int64(newSuperBloque.S_inode_start+i*int32(binary.Size(Inode{}))))
 		if err != nil {
-			fmt.Println("MKFS Error: ", err)
-			return
+			fmt.Println("ERROR [ MKFS ]: ", err)
+			return false
 		}
 	}
 
@@ -94,8 +105,8 @@ func CrearEXT2(n int32, particion Estructuras.Partition, newSuperBloque Superblo
 	fileBlocks := make([]Fileblock, 3*n) //lo puedo trabajar asi porque son instancias de la estructura, el inode llevaban valores
 	fileBlocksErr := Acciones.WriteObject(file, fileBlocks, int64(newSuperBloque.S_bm_block_start))
 	if fileBlocksErr != nil {
-		fmt.Println("MKFS Error: ", fileBlocksErr)
-		return
+		fmt.Println("ERROR [ MKFS ]: ", fileBlocksErr)
+		return false
 	}
 
 	//Crear el Inode 0
@@ -149,7 +160,7 @@ func CrearEXT2(n int32, particion Estructuras.Partition, newSuperBloque Superblo
 	data := "1,G,root\n1,U,root,root,123\n"
 	var fileBlock1 Fileblock //Bloque1 -> archivo
 	copy(fileBlock1.B_content[:], []byte(data))
-	fmt.Println("Creado users.txt con los datos : \n", data)
+	logger.LogInfo("Creado users.txt con los datos : \n%s", data)
 
 	//resumen
 	//Inodo 0 -> Bloque 0 -> Inodo1 -> bloque1 (archivo)
@@ -182,4 +193,5 @@ func CrearEXT2(n int32, particion Estructuras.Partition, newSuperBloque Superblo
 	//bloque1
 	Acciones.WriteObject(file, fileBlock1, int64(newSuperBloque.S_block_start+int32(binary.Size(Fileblock{}))))
 	// Fin crear EXT2
+	return true
 }

@@ -21,6 +21,20 @@ Formateo completo de la particion a ext2, creara un archivo en la raiz `user.txt
 		-id    (Obligatorio)   - Indicará el id que se generó con el comando mount.
 		-type  (Opcional)      - Indicará que tipo de formateo se realizará.
 								Full: en este caso se realizará un formateo completo.
+
+
+	Recibe un ID de partición montada
+	Valida que la partición exista
+	Calcula cuántos inodos y bloques caben en la partición
+	Crea todas las estructuras necesarias del sistema EXT2:
+
+	Un superbloque
+	Bitmaps para inodos y bloques
+	Una tabla de inodos
+	Una tabla de bloques
+
+	Configura la carpeta raíz (/) y crea un archivo inicial (users.txt)
+	Escribe todas estas estructuras al disco
 */
 func Mkfs(parametros []string) string {
 	// 1) estructura para devolver las respuestas
@@ -60,24 +74,24 @@ func Mkfs(parametros []string) string {
 					}
 				}
 				if pathDico == "" {
-					fmt.Println("ERROR [ MKFS ]: La particion que se solicita '%s' no existe o no ha sido montada.", id)
+					logger.LogError("ERROR [ MKFS ]: La particion que se solicita '%s' no existe o no ha sido montada.", id)
 					paramCorrectos = false
 				}
 				idInit = true
 			} else {
-				fmt.Println("ERROR [ MKFS ]: el parametro ID esta vacio.")
+				logger.LogError("ERROR [ MKFS ]: el parametro ID esta vacio.")
 				paramCorrectos = false
 			}
 
 		case "type":
 			if strings.ToLower(tknParam[1]) != "full" {
-				fmt.Println("ERROR [ MKFS ]: Valor de -type desconocido: '%s'", string(tknParam[1]))
+				logger.LogError("ERROR [ MKFS ]: Valor de -type desconocido: '%s'", string(tknParam[1]))
 				paramCorrectos = false
 				break
 			}
 
 		default:
-			fmt.Println("ERROR [ MKFS ]: Parametro desconocido: '%s", string(tknParam[0]))
+			logger.LogError("ERROR [ MKFS ]: Parametro desconocido: '%s", string(tknParam[0]))
 			paramCorrectos = false
 			break
 
@@ -110,6 +124,7 @@ func Mkfs(parametros []string) string {
 			identificador := Estructuras.GetId(string(mbr.Mbr_partitions[i].Part_id[:]))
 
 			if identificador == id { // el id debe coincidir con el de la particion que se busca
+
 				formatear = false //Si encontro la particion
 
 				//Crear el super bloque que contiene los datos del sistema de archivos. Es similar al mbr en los discos
@@ -119,6 +134,15 @@ func Mkfs(parametros []string) string {
 				//Calcular el numero de inodos que caben en la particion. El numero de bloques es el triple de inodos
 				//(formula a partir del tamaño de la particion, esta en el enunciado pag. 10)
 				//tamaños fisicos: SuperBloque = 92; Inodo = 124; Bloque = 64
+				/*
+
+					Calcula cuántos inodos (n) caben en la partición usando la fórmula
+
+					numerador = tamaño_partición - tamaño_superbloque
+					denominador = 4 + tamaño_inodo + 3*tamaño_bloque
+					n = numerador / denominador
+
+				*/
 				numerador := int(mbr.Mbr_partitions[i].Part_size) - binary.Size(ext2.Superblock{})
 				denominador := 4 + binary.Size(ext2.Inode{}) + 3*binary.Size(ext2.Fileblock{})
 
@@ -142,19 +166,23 @@ func Mkfs(parametros []string) string {
 				newSuperBloque.S_mnt_count += 1 //Se esta montando por primera vez
 				newSuperBloque.S_magic = 0xEF53
 
-				ext2.CrearEXT2(n, mbr.Mbr_partitions[i], newSuperBloque, ahora.Format("02/01/2006 15:04:05"), file)
+				exito := ext2.CrearEXT2(n, mbr.Mbr_partitions[i], newSuperBloque, ahora.Format("02/01/2006 15:04:05"), file, logger)
 
-				//Fin del formateo
-				fmt.Println("Particion con id ", id, " formateada correctamente, en: ", ahora.Format("02/01/2006 15:04:05"))
+				if exito {
+					//Fin del formateo
+					logger.LogInfo("Particion con id %s formateada correctamente, en la fecha: %s", id, string(ahora.Format("02/01/2006 15:04:05")))
 
-				//Si hubiera una sesion iniciada eliminarla
-				break //para que ya no siga recorriendo las demas particiones
+					//Si hubiera una sesion iniciada eliminarla
+					break //para que ya no siga recorriendo las demas particiones
+				}
+				break
+
 			}
 		}
 
 		if formatear {
-			fmt.Println("MKFS Error. No se pudo formatear la particion con id ", id)
-			fmt.Println("MKFS Error. No existe el id")
+			logger.LogError("ERROR [ MKFS ] No se pudo formatear la particion con id %s", id)
+			logger.LogError("ERROR [ MKFS ] No existe el id")
 		}
 	}
 
