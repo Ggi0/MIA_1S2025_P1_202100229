@@ -95,6 +95,7 @@ func PrintMBRToString(data MBR) string {
 	for i := 0; i < 4; i++ {
 		salidaNormal.WriteString(fmt.Sprintf("Partición %d:\n", i+1))
 		salidaNormal.WriteString(fmt.Sprintf("\tNombre: %s\n", string(data.Mbr_partitions[i].Part_name[:])))
+		salidaNormal.WriteString(fmt.Sprintf("\tEstado: %s\n", string(data.Mbr_partitions[i].Part_status[:])))
 		salidaNormal.WriteString(fmt.Sprintf("\tTipo:   %s\n", string(data.Mbr_partitions[i].Part_type[:])))
 		salidaNormal.WriteString(fmt.Sprintf("\tInicio: %d\n", data.Mbr_partitions[i].Part_start))
 		salidaNormal.WriteString(fmt.Sprintf("\tTamaño: %d Bytes\n", data.Mbr_partitions[i].Part_size))
