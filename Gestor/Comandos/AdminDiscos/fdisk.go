@@ -177,20 +177,25 @@ func Fdisk(parametros []string) string {
 					return logger.GetErrors()
 				}
 
-				//fmt.Println("-- info fdisk --")
-				logger.LogInfo("Size: %s", strconv.Itoa(size))
-				logger.LogInfo("Unit: %s", strconv.Itoa(unit))
-				logger.LogInfo("type: %s", typePartition)
-				logger.LogInfo("fit:  %s", fit)
-				logger.LogInfo("name: %s", name)
-
 				// EscribirParticion(disco *os.File, typePartition string, name string, size int, unit int, fit string)
-				Estructuras.EscribirParticion(disco, typePartition, name, size, unit, fit)
+				exito := Estructuras.EscribirParticion(disco, typePartition, name, size, unit, fit, logger)
 
-				defer disco.Close() // cerrar el disco
-				//				fmt.Println("\n[ MK DISK ]: Proceso completado, el disco", nombreDisco, " Fue creado CORRECTAMENTE. en: ", file.Name())
+				if !exito {
+					// Los errores ya se registraron en el logger, no necesitas hacer nada más
+					defer disco.Close() // cerrar el disco
+				} else {
+					defer disco.Close() // cerrar el disco
+					//				fmt.Println("\n[ MK DISK ]: Proceso completado, el disco", nombreDisco, " Fue creado CORRECTAMENTE. en: ", file.Name())
 
-				logger.LogSuccess("\n[ F DISK ]: Proceso completado, la particion:  %s Fue creado CORRECTAMENTE en el disco: %s", name, disco.Name())
+					//fmt.Println("-- info fdisk --")
+					logger.LogInfo("Size: %s", strconv.Itoa(size))
+					logger.LogInfo("Unit: %s", strconv.Itoa(unit))
+					logger.LogInfo("type: %s", typePartition)
+					logger.LogInfo("fit:  %s", fit)
+					logger.LogInfo("name: %s", name)
+
+					logger.LogSuccess("\n[ F DISK ]: Proceso completado, la particion:  %s Fue creado CORRECTAMENTE en el disco: %s", name, disco.Name())
+				}
 
 			} else {
 				logger.LogError("ERROR [ F DISK ]: parametros minimos obligatirios incompletos")
