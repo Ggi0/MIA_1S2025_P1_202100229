@@ -9,6 +9,8 @@ import (
 
 	// administracion de discos:
 	admindiscos "Gestor/Comandos/AdminDiscos"
+	fileSystem "Gestor/Comandos/adminSistemaArchivos"
+
 	"Gestor/models"
 )
 
@@ -186,6 +188,26 @@ func analizarEntrada(entrada string) models.ResultadoComando {
 		} else {
 			// retornar un error
 			errorMsg := "\t ---> ERROR [ MOUNTED ]: No permite más parametros"
+			salidaError.WriteString(errorMsg + "\n")
+			resultado.Exito = false
+		}
+		salidaNormal.WriteString("\n ------------------------------------------------------------------------------ \n\n")
+	case "mkfs":
+		salidaNormal.WriteString("\n ----------------------------------- mkfs ----------------------------------- \n")
+		if len(parametros) > 1 {
+			// ejecutar parametros
+			salidaMkfs := fileSystem.Mkfs(parametros)
+
+			// Detectar si hay errores en la salida
+			if strings.Contains(strings.ToLower(salidaMkfs), "error") {
+				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salidaMkfs))
+				resultado.Exito = false
+			} else {
+				salidaNormal.WriteString(salidaMkfs)
+			}
+		} else {
+			// retornar un error
+			errorMsg := "\t ---> ERROR [ MKFS ]: falta de parametros obligatorios"
 			salidaError.WriteString(errorMsg + "\n")
 			resultado.Exito = false
 		}
