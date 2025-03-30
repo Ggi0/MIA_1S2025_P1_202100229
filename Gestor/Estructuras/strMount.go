@@ -20,8 +20,18 @@ func AddPathM(path string, L byte, cont int) {
 
 // ==============================================================================
 
+// esta informacion si se borra, pero realmente sigue escrita en los disco.
 // Almacena la informacion de cada Id junto a su Path
 var Montadas []mountAlready
+
+/*
+
+Montadas = [
+    { Id: "291A", PathM: "/dev/sda" },
+    { Id: "292A", PathM: "/dev/sda" },
+    { Id: "291B", PathM: "/dev/sdb" }
+
+*/
 
 type mountAlready struct {
 	Id    string //Id de la particion
