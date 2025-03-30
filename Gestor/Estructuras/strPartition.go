@@ -82,6 +82,7 @@ unit int             ---> B (bytes), K (kilobytes), M (megabytes)
 func EscribirParticion(disco *os.File, typePartition string, name string, size int, unit int, fit string) {
 	//Se crea un mbr para cargar el mbr del disco --> la info
 	var mbr MBR
+
 	//Guardo el mbr leido --> y se lee desde la posicion (0, 0) --> lee el MBR que tiene el archivo disco
 	if err := Acciones.ReadObject(disco, &mbr, 0); err != nil {
 		return
@@ -135,12 +136,32 @@ func EscribirParticion(disco *os.File, typePartition string, name string, size i
 		// obtener el espacio Real fisico que ocupa el MBR en el disco (el tamaño de la estructura - estructuras.md)
 		sizeMBR := int32(binary.Size(mbr))
 
-		//Para manejar los demas ajustes hacer un if del fit para llamar a la funcion adecuada
-		//F = primer ajuste; B = mejor ajuste; else -> peor ajuste
+		//Para manejar los demas ajustes hacer un if del FIT para llamar a la funcion adecuada
+
+		// TODO: validar los ajustes
+		// F = primer ajuste;  (BF)
+		// B = mejor ajuste;   (FF)
+		// else -> peor ajuste (WF --> por defecto)
 
 		//INSERTAR PARTICION (Primer ajuste)
+		switch fit {
+		case "FF": // busca el primer espacio libre que encuentre
+			fmt.Println("fit: ", fit)
+
+		case "BF": // Busca el espacio más pequeño donde quepa
+			fmt.Println("fit: ", fit)
+
+		case "WF": // busca el espacio libre mas grande disponible
+			// worstfit
+			fmt.Println("fit: ", fit)
+
+		default:
+			// ERROR
+		}
+
 		mbr, newPart = primerAjuste(mbr, typePartition, sizeMBR, int32(sizeNewPart), name, fit) //int32(sizeNewPart) es para castear el int a int32 que es el tipo que tiene el atributo en el struct Partition
-		guardar = (newPart.Part_size > 0)                                                       // si la particion es mayor a 0 se puede guardar
+		// si la particion es mayor a 0 se puede guardar
+		guardar = (newPart.Part_size > 0)
 
 		//escribimos el MBR en el archivo. Lo que no se llegue a escribir en el archivo (aqui) se pierde, es decir, los cambios no se guardan
 		if guardar {
@@ -173,39 +194,45 @@ func EscribirParticion(disco *os.File, typePartition string, name string, size i
 			PrintMBR(TempMBR2)
 		} else {
 			//Lo podría eliminar pero tendria que modificar en el metodo del ajuste todos los errores para que aparezca el nombre que se intento ingresar como nueva particion
-			fmt.Println("\t ---> ERROR [ F DISK ]: No se puede crear la nueva particion con nombre: ", name)
+			fmt.Println("ERROR [ F DISK ]: No se puede crear la nueva particion con nombre: ", name)
 			defer disco.Close()
 		}
 
 	}
-	//else if para ingreso de particiones logicas
+	// TODO: else if para ingreso de particiones logicas
 
 }
 
 func primerAjuste(mbr MBR, typee string, sizeMBR int32, sizeNewPart int32, name string, fit string) (MBR, Partition) {
-	var newPart Partition
-	var noPart Partition //para revertir el set info (simula volverla null)
 
-	//PARTICION 1 (libre) - (size = 0 no se ha creado)
+	var newPart Partition // struct de particion
+	var noPart Partition  //para revertir el set info (simula volverla null)
+
+	//PARTICION 1 (libre) - (size = 0 no se ha creado) caso1
 	if mbr.Mbr_partitions[0].Part_size == 0 {
-		newPart.SetInfo(typee, fit, sizeMBR, sizeNewPart, name, 1)
+		newPart.SetInfo(typee, fit, sizeMBR, sizeNewPart, name, 1) // nueva particion
 		if mbr.Mbr_partitions[1].Part_size == 0 {
 			if mbr.Mbr_partitions[2].Part_size == 0 {
 				//caso particion 4 (no existe)
 				if mbr.Mbr_partitions[3].Part_size == 0 {
 					//859 <= 1024 - 165
+					// validar que el tamanio de la particion quepa
 					if sizeNewPart <= mbr.Mbr_tamanio-sizeMBR { // tamanio del disco - tamanio de la estructura MBR
 						mbr.Mbr_partitions[0] = newPart
 					} else {
-						newPart = noPart
-						fmt.Println("FDISK Error. Espacio insuficiente")
+						newPart = noPart // regresa a un case Particion vacio
+						fmt.Println("ERROR [FDISK]: Espacio insuficiente para nueva particion")
 					}
-				}
+				} // else caso 2
 			}
 		}
 		//Fin de 1 no existe
 
 		//PARTICION 2 (no existe)
+		/*
+			part0 part1 part2 part3
+			1	  0		0	  0
+		*/
 	} else if mbr.Mbr_partitions[1].Part_size == 0 {
 		//Si no hay espacio antes de particion 1
 		newPart.SetInfo(typee, fit, mbr.Mbr_partitions[0].GetEnd(), sizeNewPart, name, 2) //el nuevo inicio es donde termina 1
@@ -215,13 +242,17 @@ func primerAjuste(mbr MBR, typee string, sizeMBR int32, sizeNewPart int32, name 
 					mbr.Mbr_partitions[1] = newPart
 				} else {
 					newPart = noPart
-					fmt.Println("FDISK Error. Espacio insuficiente")
+					fmt.Println("ERROR [FDISK]: Espacio insuficiente para nueva particion")
 				}
 			}
 		}
 		//Fin particion 2 no existe
 
 		//PARTICION 3
+		/*
+			part0 part1 part2 part3
+			1	  1		0	  0
+		*/
 	} else if mbr.Mbr_partitions[2].Part_size == 0 {
 		//despues de 2
 		newPart.SetInfo(typee, fit, mbr.Mbr_partitions[1].GetEnd(), sizeNewPart, name, 3)
@@ -230,12 +261,16 @@ func primerAjuste(mbr MBR, typee string, sizeMBR int32, sizeNewPart int32, name 
 				mbr.Mbr_partitions[2] = newPart
 			} else {
 				newPart = noPart
-				fmt.Println("FDISK Error. Espacio insuficiente")
+				fmt.Println("ERROR [FDISK]: Espacio insuficiente para nueva particion")
 			}
 		}
 		//Fin particion 3
 
 		//PARTICION 4
+		/*
+			part0 part1 part2 part3
+			1	  1		1	  0
+		*/
 	} else if mbr.Mbr_partitions[3].Part_size == 0 {
 		if sizeNewPart <= mbr.Mbr_tamanio-mbr.Mbr_partitions[2].GetEnd() {
 			//despues de 3
@@ -243,12 +278,16 @@ func primerAjuste(mbr MBR, typee string, sizeMBR int32, sizeNewPart int32, name 
 			mbr.Mbr_partitions[3] = newPart
 		} else {
 			newPart = noPart
-			fmt.Println("FDISK Error. Espacio insuficiente")
+			fmt.Println("ERROR [FDISK]: Espacio insuficiente")
 		}
 		//Fin particion 4
+		/*
+			part0 part1 part2 part3
+			1	  1		1	  1
+		*/
 	} else {
 		newPart = noPart
-		fmt.Println("FDISK Error. Particiones primarias y/o extendidas ya no disponibles")
+		fmt.Println("ERROR [FDISK]: Particiones primarias y/o extendidas ya no disponibles")
 	}
 
 	return mbr, newPart
