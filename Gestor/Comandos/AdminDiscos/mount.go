@@ -156,9 +156,10 @@ func Mount(parametros []string) string {
 							contador := 1             //
 							modificada := false       //para saber si ya hay una particion montada en el disco
 
+							// Se busca si el disco ya tiene particiones montadas
 							//Verifica si el path existe dentro de las particiones montadas para calcular la nueva letra
-							for k := 0; k < len(Estructuras.Pmontaje); k++ {
-								if Estructuras.Pmontaje[k].MPath == path {
+							for k := 0; k < len(Estructuras.Pmontaje); k++ { //Recorre la lista de discos montados
+								if Estructuras.Pmontaje[k].MPath == path { // Si encuentra que el path del disco ya está en la lista, significa que ya hay al menos una partición montada en ese disco.
 									//Modifica el struct
 									Estructuras.Pmontaje[k].Cont = Estructuras.Pmontaje[k].Cont + 1
 									contador = int(Estructuras.Pmontaje[k].Cont)
@@ -168,8 +169,10 @@ func Mount(parametros []string) string {
 								}
 							}
 
+							// Si el disco no tiene particiones montadas, asigna una nueva letra
 							if !modificada {
 								if len(Estructuras.Pmontaje) > 0 {
+									// Si hay discos montados en Estructuras.Pmontaje, toma la letra del último disco y la incrementa (A → B → C ...).
 									nuevaLetra = Estructuras.Pmontaje[len(Estructuras.Pmontaje)-1].Letter + 1
 								}
 								Estructuras.AddPathM(path, nuevaLetra, 1)

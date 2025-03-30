@@ -170,6 +170,26 @@ func analizarEntrada(entrada string) models.ResultadoComando {
 		}
 		salidaNormal.WriteString("\n ------------------------------------------------------------------------------ \n\n")
 
+	case "mounted":
+		salidaNormal.WriteString("\n ----------------------------------- mount ----------------------------------- \n")
+		if len(parametros) == 1 {
+			// ejecutar parametros
+			salidaMounted := admindiscos.Mounted(parametros)
+
+			// Detectar si hay errores en la salida
+			if strings.Contains(strings.ToLower(salidaMounted), "error") {
+				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salidaMounted))
+				resultado.Exito = false
+			} else {
+				salidaNormal.WriteString(salidaMounted)
+			}
+		} else {
+			// retornar un error
+			errorMsg := "\t ---> ERROR [ MOUNTED ]: No permite más parametros"
+			salidaError.WriteString(errorMsg + "\n")
+			resultado.Exito = false
+		}
+		salidaNormal.WriteString("\n ------------------------------------------------------------------------------ \n\n")
 	default:
 		errorMsg := fmt.Sprintf("\t ---> ERROR [ ]: comando no reconocido %s", strings.ToLower(parametros[0]))
 		salidaError.WriteString(errorMsg + "\n")
