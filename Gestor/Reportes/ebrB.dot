@@ -1,0 +1,178 @@
+digraph { 
+node [ shape=none ] 
+TablaReportNodo [ label = < <table border="1"> 
+ <tr>
+  <td bgcolor='SlateBlue' COLSPAN="2"> Reporte EBR de Particiones Lógicas </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='LightSteelBlue' COLSPAN="2"> Partición Extendida: Part51 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='#AFA1D1'> Inicio Partición Extendida </td> 
+  <td bgcolor='#AFA1D1'> 168 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Azure'> Tamaño Partición Extendida </td> 
+  <td bgcolor='Azure'> 5242880 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='MediumSlateBlue' COLSPAN="2"> EBR #1 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='GhostWhite'> Posición en Disco </td> 
+  <td bgcolor='GhostWhite'> 168 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Lavender'> Estado </td> 
+  <td bgcolor='Lavender'> 0 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='GhostWhite'> Ajuste </td> 
+  <td bgcolor='GhostWhite'> B </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Lavender'> Inicio Partición </td> 
+  <td bgcolor='Lavender'> 168 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='GhostWhite'> Tamaño Partición </td> 
+  <td bgcolor='GhostWhite'> 1048576 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Lavender'> Siguiente EBR </td> 
+  <td bgcolor='Lavender'> 1048744 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='GhostWhite'> Nombre Partición </td> 
+  <td bgcolor='GhostWhite'> Part52 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='SteelBlue' COLSPAN="2"> Partición Lógica </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='LightCyan'> Nombre </td> 
+  <td bgcolor='LightCyan'> Part52 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='PowderBlue'> Inicio </td> 
+  <td bgcolor='PowderBlue'> 168 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='LightCyan'> Tamaño </td> 
+  <td bgcolor='LightCyan'> 1048576 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='PowderBlue'> Tipo </td> 
+  <td bgcolor='PowderBlue'> L </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='#E6E6FA' COLSPAN="2"> </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='MediumSlateBlue' COLSPAN="2"> EBR #2 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='GhostWhite'> Posición en Disco </td> 
+  <td bgcolor='GhostWhite'> 1048744 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Lavender'> Estado </td> 
+  <td bgcolor='Lavender'> 0 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='GhostWhite'> Ajuste </td> 
+  <td bgcolor='GhostWhite'> B </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Lavender'> Inicio Partición </td> 
+  <td bgcolor='Lavender'> 1048775 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='GhostWhite'> Tamaño Partición </td> 
+  <td bgcolor='GhostWhite'> 1048576 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Lavender'> Siguiente EBR </td> 
+  <td bgcolor='Lavender'> 3145958 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='GhostWhite'> Nombre Partición </td> 
+  <td bgcolor='GhostWhite'> Part56 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='SteelBlue' COLSPAN="2"> Partición Lógica </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='LightCyan'> Nombre </td> 
+  <td bgcolor='LightCyan'> Part56 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='PowderBlue'> Inicio </td> 
+  <td bgcolor='PowderBlue'> 1048775 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='LightCyan'> Tamaño </td> 
+  <td bgcolor='LightCyan'> 1048576 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='PowderBlue'> Tipo </td> 
+  <td bgcolor='PowderBlue'> L </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='#E6E6FA' COLSPAN="2"> </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='MediumSlateBlue' COLSPAN="2"> EBR #3 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='GhostWhite'> Posición en Disco </td> 
+  <td bgcolor='GhostWhite'> 3145958 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Lavender'> Estado </td> 
+  <td bgcolor='Lavender'> 0 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='GhostWhite'> Ajuste </td> 
+  <td bgcolor='GhostWhite'> B </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Lavender'> Inicio Partición </td> 
+  <td bgcolor='Lavender'> 3145989 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='GhostWhite'> Tamaño Partición </td> 
+  <td bgcolor='GhostWhite'> 1048576 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Lavender'> Siguiente EBR </td> 
+  <td bgcolor='Lavender'> -1 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='GhostWhite'> Nombre Partición </td> 
+  <td bgcolor='GhostWhite'> Part54 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='SteelBlue' COLSPAN="2"> Partición Lógica </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='LightCyan'> Nombre </td> 
+  <td bgcolor='LightCyan'> Part54 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='PowderBlue'> Inicio </td> 
+  <td bgcolor='PowderBlue'> 3145989 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='LightCyan'> Tamaño </td> 
+  <td bgcolor='LightCyan'> 1048576 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='PowderBlue'> Tipo </td> 
+  <td bgcolor='PowderBlue'> L </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='#E6E6FA' COLSPAN="2"> </td> 
+ </tr> 
+</table> > ]
+}

@@ -1,0 +1,166 @@
+digraph { 
+node [ shape=none ] 
+TablaReportNodo [ label = < <table border="1"> 
+ <tr>
+  <td bgcolor='SlateBlue' COLSPAN="2"> Reporte MBR </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Azure'> mbr_tamano </td> 
+  <td bgcolor='Azure'> 20971520 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='#AFA1D1'> mbr_fecha_creacion </td> 
+  <td bgcolor='#AFA1D1'> 30/03/2025 23:42:20 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Azure'> mbr_disk_signature </td> 
+  <td bgcolor='Azure'> 2042 </td> 
+ </tr>  
+ <tr>
+  <td bgcolor='DeepSkyBlue' COLSPAN="2"> PARTICION </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Azure'> part_status </td> 
+  <td bgcolor='Azure'> 0 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='LightSkyBlue'> part_type </td> 
+  <td bgcolor='LightSkyBlue'> E </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Azure'> part_fit </td> 
+  <td bgcolor='Azure'> B </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='LightSkyBlue'> part_start </td> 
+  <td bgcolor='LightSkyBlue'> 168 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Azure'> part_size </td> 
+  <td bgcolor='Azure'> 5242880 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='LightSkyBlue'> part_name </td> 
+  <td bgcolor='LightSkyBlue'> Part51 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Azure'> part_id </td> 
+  <td bgcolor='Azure'> - </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='SteelBlue' COLSPAN="2"> PARTICION LOGICA </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Azure'> part_status </td> 
+  <td bgcolor='Azure'> 0 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='SkyBlue'> part_next </td> 
+  <td bgcolor='SkyBlue'> 1048744 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Azure'> part_fit </td> 
+  <td bgcolor='Azure'> B </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='SkyBlue'> part_Part_start </td> 
+  <td bgcolor='SkyBlue'> 168 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Azure'> part_size </td> 
+  <td bgcolor='Azure'> 1048576 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='SkyBlue'> part_name </td> 
+  <td bgcolor='SkyBlue'> Part52 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='SteelBlue' COLSPAN="2"> PARTICION LOGICA </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Azure'> part_status </td> 
+  <td bgcolor='Azure'> 0 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='SkyBlue'> part_next </td> 
+  <td bgcolor='SkyBlue'> 3145958 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Azure'> part_fit </td> 
+  <td bgcolor='Azure'> B </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='SkyBlue'> part_Part_start </td> 
+  <td bgcolor='SkyBlue'> 1048775 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Azure'> part_size </td> 
+  <td bgcolor='Azure'> 1048576 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='SkyBlue'> part_name </td> 
+  <td bgcolor='SkyBlue'> Part56 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='SteelBlue' COLSPAN="2"> PARTICION LOGICA </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Azure'> part_status </td> 
+  <td bgcolor='Azure'> 0 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='SkyBlue'> part_next </td> 
+  <td bgcolor='SkyBlue'> -1 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Azure'> part_fit </td> 
+  <td bgcolor='Azure'> B </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='SkyBlue'> part_Part_start </td> 
+  <td bgcolor='SkyBlue'> 3145989 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Azure'> part_size </td> 
+  <td bgcolor='Azure'> 1048576 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='SkyBlue'> part_name </td> 
+  <td bgcolor='SkyBlue'> Part54 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='DeepSkyBlue' COLSPAN="2"> PARTICION </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Azure'> part_status </td> 
+  <td bgcolor='Azure'> 1 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='LightSkyBlue'> part_type </td> 
+  <td bgcolor='LightSkyBlue'> P </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Azure'> part_fit </td> 
+  <td bgcolor='Azure'> B </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='LightSkyBlue'> part_start </td> 
+  <td bgcolor='LightSkyBlue'> 5243048 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Azure'> part_size </td> 
+  <td bgcolor='Azure'> 5242880 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='LightSkyBlue'> part_name </td> 
+  <td bgcolor='LightSkyBlue'> Part53 </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='Azure'> part_id </td> 
+  <td bgcolor='Azure'> 291A </td> 
+ </tr> 
+ <tr>
+  <td bgcolor='#808080' COLSPAN="2"> ESPACIO LIBRE <br/> 10485592 bytes </td> 
+ </tr> 
+</table> > ]
+}
