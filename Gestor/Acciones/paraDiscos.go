@@ -3,7 +3,9 @@ package Acciones
 import (
 	"encoding/binary"
 	"fmt"
+	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -183,3 +185,35 @@ mkdisk -size=5 -unit=M -path="/home/mis discos/Disco3.mia"
 fdisk -size=1 -type=L -unit=M -fit=BF-path="home/mis discos/Disco3.mia"-name="Particion3"
 rmdisk                 -path="/home/mis discos/Disco3.mia"
 */
+
+func RepGraphizMBR(path string, contenido string, nombre string) error {
+	//asegurar la ruta
+	dir := filepath.Dir(path)
+	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+		fmt.Println("Error al crear el reporte, path: ", err)
+		return err
+	}
+	// Abrir o crear un archivo para escritura
+	file, err := os.Create(path)
+	if err != nil {
+		fmt.Println("Error al crear el archivo:", err)
+		return err
+	}
+	defer file.Close()
+
+	// Escribir en el archivo
+	_, err = file.WriteString(contenido)
+	if err != nil {
+		fmt.Println("Error al escribir en el archivo:", err)
+		return err
+	}
+
+	rep2 := dir + "/" + nombre + ".png"
+	cmd := exec.Command("dot", "-Tpng", path, "-o", rep2)
+	err = cmd.Run()
+	if err != nil {
+		log.Fatalf("Error al generar el reporte PNG: %v", err)
+	}
+
+	return err
+}

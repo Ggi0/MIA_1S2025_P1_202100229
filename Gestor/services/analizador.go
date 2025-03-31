@@ -9,6 +9,7 @@ import (
 
 	// administracion de discos:
 	admindiscos "Gestor/Comandos/AdminDiscos"
+	rep "Gestor/Comandos/Rep"
 	fileSystem "Gestor/Comandos/adminSistemaArchivos"
 
 	"Gestor/models"
@@ -204,6 +205,26 @@ func analizarEntrada(entrada string) models.ResultadoComando {
 				resultado.Exito = false
 			} else {
 				salidaNormal.WriteString(salidaMkfs)
+			}
+		} else {
+			// retornar un error
+			errorMsg := "\t ---> ERROR [ MKFS ]: falta de parametros obligatorios"
+			salidaError.WriteString(errorMsg + "\n")
+			resultado.Exito = false
+		}
+		salidaNormal.WriteString("\n ------------------------------------------------------------------------------ \n\n")
+	case "rep":
+		salidaNormal.WriteString("\n ----------------------------------- Rep ----------------------------------- \n")
+		if len(parametros) > 1 {
+			// ejecutar parametros
+			salidaRep := rep.Reportes(parametros)
+
+			// Detectar si hay errores en la salida
+			if strings.Contains(strings.ToLower(salidaRep), "error") {
+				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salidaRep))
+				resultado.Exito = false
+			} else {
+				salidaNormal.WriteString(salidaRep)
 			}
 		} else {
 			// retornar un error
