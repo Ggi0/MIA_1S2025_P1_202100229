@@ -18,11 +18,11 @@ Atributos:
 */
 
 type EBR struct {
-	ebrP_mount [1]byte  //part_mount (si esta montada)
-	ebrP_fit   [1]byte  //part_fit
-	ebrP_start int32    //part_start
-	ebrP_size  int32    //part_s
-	ebrP_next  int32    //part_next
-	ebrP_name  [16]byte //part_name
-	ebrType    [1]byte
+	EbrP_mount [1]byte  //part_mount (si esta montada)
+	EbrP_fit   [1]byte  //part_fit
+	EbrP_start int32    //part_start
+	EbrP_size  int32    //part_s
+	EbrP_next  int32    //part_next
+	EbrP_name  [16]byte //part_name
+	EbrType    [1]byte
 }

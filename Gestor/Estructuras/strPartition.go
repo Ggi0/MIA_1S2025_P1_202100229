@@ -29,7 +29,7 @@ atributos:
 */
 type Partition struct {
 	Part_status      [1]byte  // Estado de la partición
-	Part_type        [1]byte  // Tipo de partición P E
+	Part_type        [1]byte  // Tipo de partición P / E /L
 	Part_fit         [1]byte  // Ajuste de la partición
 	Part_start       int32    // Byte de inicio de la partición
 	Part_size        int32    // Tamaño de la partición
@@ -176,11 +176,11 @@ func EscribirParticion(disco *os.File, typePartition string, name string, size i
 			if isPartExtend {
 				var ebr EBR // EBR por "defecto"
 
-				ebr.ebrP_start = newPart.Part_start // el nuevo EBR inicia a apartir de donde incia la nueva particion
-				ebr.ebrP_next = -1                  // enlazada a otro ebr
+				ebr.EbrP_start = newPart.Part_start // el nuevo EBR inicia a apartir de donde incia la nueva particion
+				ebr.EbrP_next = -1                  // enlazada a otro ebr
 
-				// escribiendo el EBR en la posicion int64(ebr.ebrP_start)
-				if err := Acciones.WriteObject(disco, ebr, int64(ebr.ebrP_start)); err != nil {
+				// escribiendo el EBR en la posicion int64(ebr.EbrP_start)
+				if err := Acciones.WriteObject(disco, ebr, int64(ebr.EbrP_start)); err != nil {
 					return false
 				}
 			}
@@ -198,9 +198,218 @@ func EscribirParticion(disco *os.File, typePartition string, name string, size i
 			logger.LogError("ERROR [ F DISK ]: No se puede crear la nueva particion con nombre: %s", name)
 			return false
 		}
+		// TODO: else if para ingreso de particiones logicas
+	} else if (typePartition == "L") && isName {
+		// logica de particion logica
+		// 1. Verificar que exista una partición extendida
+		var existeExtendida bool = false
+		var partExtendida Partition
 
+		// Buscar la partición extendida en el MBR
+		for i := 0; i < 4; i++ {
+			tipo := string(mbr.Mbr_partitions[i].Part_type[:])
+			if tipo == "E" {
+				existeExtendida = true
+				partExtendida = mbr.Mbr_partitions[i]
+				break
+			}
+		}
+
+		// Si no existe una partición extendida, no se puede crear la lógica
+		if !existeExtendida {
+			logger.LogError("ERROR [ F DISK ]: No existe una partición extendida para crear particiones lógicas")
+			return false
+		}
+
+		// 2. Calcular el tamaño de la partición lógica
+		sizeLogica := int32(size * unit)
+
+		// 3. Verificar si el nombre no está repetido entre las particiones lógicas
+		nombreRepetido := false
+
+		// Primer EBR está al inicio de la partición extendida
+		var ebrActual EBR
+		var posEBR int64 = int64(partExtendida.Part_start)
+
+		// Leemos el primer EBR (ya debe existir)
+		if err := Acciones.ReadObject(disco, &ebrActual, posEBR); err != nil {
+			logger.LogError("ERROR [ F DISK ]: No se pudo leer el EBR inicial de la partición extendida")
+			return false
+		}
+
+		// Verificar nombres y encontrar espacio disponible
+		for {
+			// Si el EBR actual tiene un nombre (está ocupado)
+			ebrNombre := GetName(string(ebrActual.EbrP_name[:]))
+			if ebrNombre == name {
+				nombreRepetido = true
+				logger.LogError("ERROR [ F DISK ]: Ya existe una partición lógica con el nombre %s", name)
+				break
+			}
+
+			// Si llegamos al último EBR (next = -1)
+			if ebrActual.EbrP_next == -1 {
+				break
+			}
+
+			// Avanzar al siguiente EBR
+			posEBR = int64(ebrActual.EbrP_next)
+			if err := Acciones.ReadObject(disco, &ebrActual, posEBR); err != nil {
+				logger.LogError("ERROR [ F DISK ]: Error al leer un EBR en la cadena de particiones lógicas")
+				return false
+			}
+		}
+
+		if nombreRepetido {
+			return false
+		}
+
+		// 4. Buscar espacio disponible dentro de la partición extendida
+		var espacioEncontrado bool = false
+		var nuevaPos int64 = 0
+
+		// Reiniciar para volver a recorrer la lista de EBRs
+		posEBR = int64(partExtendida.Part_start)
+		if err := Acciones.ReadObject(disco, &ebrActual, posEBR); err != nil {
+			logger.LogError("ERROR [ F DISK ]: Error al leer el EBR inicial")
+			return false
+		}
+
+		// Caso especial: Primer EBR sin usar (partición extendida recién creada)
+		if ebrActual.EbrP_size == 0 {
+			// El primer EBR está vacío, podemos usarlo
+			espacioEncontrado = true
+
+			// Configurar el EBR
+			copy(ebrActual.EbrP_name[:], name)
+			copy(ebrActual.EbrP_fit[:], fit)
+			ebrActual.EbrP_size = sizeLogica
+			// El EBR ya tiene su EbrP_start configurado (desde la creación de la partición extendida)
+			// Mantenemos EbrP_next = -1
+			copy(ebrActual.EbrP_mount[:], "0") // No montada
+			copy(ebrActual.EbrType[:], "L")    // Tipo lógica
+
+			// Escribir el EBR actualizado
+			if err := Acciones.WriteObject(disco, ebrActual, posEBR); err != nil {
+				logger.LogError("ERROR [ F DISK ]: Error al escribir el primer EBR")
+				return false
+			}
+
+			logger.LogInfo("[ F DISK ]: Partición lógica %s creada en el primer EBR", name)
+			return true
+		}
+
+		// Buscar espacio entre EBRs existentes o al final
+		var prevEBR EBR = ebrActual
+		var posPrevEBR int64 = posEBR
+
+		for {
+			// Calcular espacio disponible después del EBR actual
+			var espacioDisponible int32 = 0
+
+			if ebrActual.EbrP_next == -1 {
+				// Es el último EBR, el espacio va desde el final de esta partición hasta el final de la extendida
+				finActual := ebrActual.EbrP_start + ebrActual.EbrP_size
+				espacioDisponible = (partExtendida.Part_start + partExtendida.Part_size) - finActual
+
+				// Si hay suficiente espacio
+				if espacioDisponible >= sizeLogica+int32(binary.Size(ebrActual)) {
+					espacioEncontrado = true
+
+					// Posición del nuevo EBR: justo después de la partición actual
+					nuevaPos = int64(finActual)
+
+					// Crear nuevo EBR
+					var nuevoEBR EBR
+					copy(nuevoEBR.EbrP_name[:], name)
+					copy(nuevoEBR.EbrP_fit[:], fit)
+					nuevoEBR.EbrP_size = sizeLogica
+					nuevoEBR.EbrP_start = finActual + int32(binary.Size(nuevoEBR)) // El inicio de la partición está después del EBR
+					nuevoEBR.EbrP_next = -1                                        // Último de la cadena
+					copy(nuevoEBR.EbrP_mount[:], "0")
+					copy(nuevoEBR.EbrType[:], "L")
+
+					// Actualizar el EBR anterior para que apunte al nuevo
+					prevEBR.EbrP_next = finActual
+					if err := Acciones.WriteObject(disco, prevEBR, posPrevEBR); err != nil {
+						logger.LogError("ERROR [ F DISK ]: Error al actualizar el EBR anterior")
+						return false
+					}
+
+					// Escribir el nuevo EBR
+					if err := Acciones.WriteObject(disco, nuevoEBR, nuevaPos); err != nil {
+						logger.LogError("ERROR [ F DISK ]: Error al escribir el nuevo EBR")
+						return false
+					}
+
+					logger.LogInfo("[ F DISK ]: Partición lógica %s creada al final de la cadena", name)
+					break
+				}
+			} else {
+				// Verificar espacio entre el fin de la partición actual y el inicio del siguiente EBR
+				finActual := ebrActual.EbrP_start + ebrActual.EbrP_size
+				espacioDisponible = ebrActual.EbrP_next - finActual
+
+				// Si hay suficiente espacio
+				if espacioDisponible >= sizeLogica+int32(binary.Size(ebrActual)) {
+					espacioEncontrado = true
+
+					// Posición del nuevo EBR: justo después de la partición actual
+					nuevaPos = int64(finActual)
+
+					// Crear nuevo EBR
+					var nuevoEBR EBR
+					copy(nuevoEBR.EbrP_name[:], name)
+					copy(nuevoEBR.EbrP_fit[:], fit)
+					nuevoEBR.EbrP_size = sizeLogica
+					nuevoEBR.EbrP_start = finActual + int32(binary.Size(nuevoEBR))
+					nuevoEBR.EbrP_next = ebrActual.EbrP_next // Apunta al que apuntaba el actual
+					copy(nuevoEBR.EbrP_mount[:], "0")
+					copy(nuevoEBR.EbrType[:], "L")
+
+					// Actualizar el actual para que apunte al nuevo
+					prevEBR.EbrP_next = finActual
+					if err := Acciones.WriteObject(disco, prevEBR, posPrevEBR); err != nil {
+						logger.LogError("ERROR [ F DISK ]: Error al actualizar el EBR anterior")
+						return false
+					}
+
+					// Escribir el nuevo EBR
+					if err := Acciones.WriteObject(disco, nuevoEBR, nuevaPos); err != nil {
+						logger.LogError("ERROR [ F DISK ]: Error al escribir el nuevo EBR")
+						return false
+					}
+
+					logger.LogInfo("[ F DISK ]: Partición lógica %s creada entre particiones existentes", name)
+					break
+				}
+			}
+
+			// Si llegamos al último EBR y no encontramos espacio
+			if ebrActual.EbrP_next == -1 {
+				break
+			}
+
+			// Avanzar al siguiente EBR
+			posPrevEBR = posEBR
+			prevEBR = ebrActual
+			posEBR = int64(ebrActual.EbrP_next)
+			if err := Acciones.ReadObject(disco, &ebrActual, posEBR); err != nil {
+				logger.LogError("ERROR [ F DISK ]: Error al leer un EBR en la cadena")
+				return false
+			}
+		}
+
+		if !espacioEncontrado {
+			logger.LogError("ERROR [ F DISK ]: No hay suficiente espacio en la partición extendida para crear la partición lógica %s", name)
+			return false
+		}
+
+	} else {
+		logger.LogError("ERROR [ F DISK ]: Parametro -type= %s no valido para crear la particion de nombre: %s", typePartition, name)
+		return false
 	}
-	// TODO: else if para ingreso de particiones logicas
+
 	return true
 }
 
