@@ -9,6 +9,8 @@ import (
 
 	// administracion de discos:
 	admindiscos "Gestor/Comandos/AdminDiscos"
+	filesFolders "Gestor/Comandos/AdminFiles"
+	users "Gestor/Comandos/AdminUserGroup"
 	rep "Gestor/Comandos/Rep"
 	fileSystem "Gestor/Comandos/adminSistemaArchivos"
 
@@ -90,7 +92,7 @@ func analizarEntrada(entrada string) models.ResultadoComando {
 
 	switch strings.ToLower(parametros[0]) {
 	case "mkdisk":
-		salidaNormal.WriteString("\n ----------------------------------- mkdisk ----------------------------------- \n")
+		salidaNormal.WriteString("\n =================================== mkdisk =================================== \n")
 		if len(parametros) > 1 {
 			// ejecutar parametros
 			salidaMkdisk := admindiscos.Mkdisk(parametros)
@@ -100,7 +102,7 @@ func analizarEntrada(entrada string) models.ResultadoComando {
 				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salidaMkdisk))
 				resultado.Exito = false
 			} else {
-				salidaNormal.WriteString(salidaMkdisk)
+				salidaNormal.WriteString(fmt.Sprintf("\tComando Ejecutado: %s\n%s", entrada, salidaMkdisk))
 			}
 		} else {
 			// retornar un error
@@ -108,10 +110,10 @@ func analizarEntrada(entrada string) models.ResultadoComando {
 			salidaError.WriteString(errorMsg + "\n")
 			resultado.Exito = false
 		}
-		salidaNormal.WriteString("\n ------------------------------------------------------------------------------ \n\n")
+		salidaNormal.WriteString("\n ============================================================================== \n\n")
 
 	case "rmdisk":
-		salidaNormal.WriteString("\n ----------------------------------- rmdisk ----------------------------------- \n")
+		salidaNormal.WriteString("\n =================================== rmdisk =================================== \n")
 		if len(parametros) > 1 {
 			// ejecutar parametros
 			salidaRmdisk := admindiscos.Rmdisk(parametros)
@@ -121,7 +123,7 @@ func analizarEntrada(entrada string) models.ResultadoComando {
 				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salidaRmdisk))
 				resultado.Exito = false
 			} else {
-				salidaNormal.WriteString(salidaRmdisk)
+				salidaNormal.WriteString(fmt.Sprintf("\tComando Ejecutado: %s\n%s", entrada, salidaRmdisk))
 			}
 		} else {
 			// retornar un error
@@ -129,20 +131,20 @@ func analizarEntrada(entrada string) models.ResultadoComando {
 			salidaError.WriteString(errorMsg + "\n")
 			resultado.Exito = false
 		}
-		salidaNormal.WriteString("\n ------------------------------------------------------------------------------ \n\n")
+		salidaNormal.WriteString("\n ============================================================================== \n\n")
 
 	case "fdisk":
-		salidaNormal.WriteString("\n ----------------------------------- fdisk ----------------------------------- \n")
+		salidaNormal.WriteString("\n =================================== fdisk =================================== \n")
 		if len(parametros) > 1 {
 			// ejecutar parametros
-			salidaFdisk := admindiscos.Fdisk(parametros)
+			salidaFdis := admindiscos.Fdisk(parametros)
 
 			// Detectar si hay errores en la salida
-			if strings.Contains(strings.ToLower(salidaFdisk), "error") {
-				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salidaFdisk))
+			if strings.Contains(strings.ToLower(salidaFdis), "error") {
+				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salidaFdis))
 				resultado.Exito = false
 			} else {
-				salidaNormal.WriteString(salidaFdisk)
+				salidaNormal.WriteString(fmt.Sprintf("\tComando Ejecutado: %s\n%s", entrada, salidaFdis))
 			}
 		} else {
 			// retornar un error
@@ -150,10 +152,10 @@ func analizarEntrada(entrada string) models.ResultadoComando {
 			salidaError.WriteString(errorMsg + "\n")
 			resultado.Exito = false
 		}
-		salidaNormal.WriteString("\n ------------------------------------------------------------------------------ \n\n")
+		salidaNormal.WriteString("\n ============================================================================== \n\n")
 
 	case "mount":
-		salidaNormal.WriteString("\n ----------------------------------- mount ----------------------------------- \n")
+		salidaNormal.WriteString("\n =================================== mount =================================== \n")
 		if len(parametros) > 1 {
 			// ejecutar parametros
 			salidaMount := admindiscos.Mount(parametros)
@@ -163,7 +165,7 @@ func analizarEntrada(entrada string) models.ResultadoComando {
 				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salidaMount))
 				resultado.Exito = false
 			} else {
-				salidaNormal.WriteString(salidaMount)
+				salidaNormal.WriteString(fmt.Sprintf("\tComando Ejecutado: %s\n%s", entrada, salidaMount))
 			}
 		} else {
 			// retornar un error
@@ -171,10 +173,10 @@ func analizarEntrada(entrada string) models.ResultadoComando {
 			salidaError.WriteString(errorMsg + "\n")
 			resultado.Exito = false
 		}
-		salidaNormal.WriteString("\n ------------------------------------------------------------------------------ \n\n")
+		salidaNormal.WriteString("\n ============================================================================== \n\n")
 
 	case "mounted":
-		salidaNormal.WriteString("\n ----------------------------------- mount ----------------------------------- \n")
+		salidaNormal.WriteString("\n =================================== mount =================================== \n")
 		if len(parametros) == 1 {
 			// ejecutar parametros
 			salidaMounted := admindiscos.Mounted(parametros)
@@ -184,7 +186,7 @@ func analizarEntrada(entrada string) models.ResultadoComando {
 				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salidaMounted))
 				resultado.Exito = false
 			} else {
-				salidaNormal.WriteString(salidaMounted)
+				salidaNormal.WriteString(fmt.Sprintf("\tComando Ejecutado: %s\n%s", entrada, salidaMounted))
 			}
 		} else {
 			// retornar un error
@@ -192,9 +194,10 @@ func analizarEntrada(entrada string) models.ResultadoComando {
 			salidaError.WriteString(errorMsg + "\n")
 			resultado.Exito = false
 		}
-		salidaNormal.WriteString("\n ------------------------------------------------------------------------------ \n\n")
+		salidaNormal.WriteString("\n ============================================================================== \n\n")
+
 	case "mkfs":
-		salidaNormal.WriteString("\n ----------------------------------- mkfs ----------------------------------- \n")
+		salidaNormal.WriteString("\n =================================== mkfs =================================== \n")
 		if len(parametros) > 1 {
 			// ejecutar parametros
 			salidaMkfs := fileSystem.Mkfs(parametros)
@@ -204,7 +207,7 @@ func analizarEntrada(entrada string) models.ResultadoComando {
 				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salidaMkfs))
 				resultado.Exito = false
 			} else {
-				salidaNormal.WriteString(salidaMkfs)
+				salidaNormal.WriteString(fmt.Sprintf("\tComando Ejecutado: %s\n%s", entrada, salidaMkfs))
 			}
 		} else {
 			// retornar un error
@@ -212,9 +215,220 @@ func analizarEntrada(entrada string) models.ResultadoComando {
 			salidaError.WriteString(errorMsg + "\n")
 			resultado.Exito = false
 		}
-		salidaNormal.WriteString("\n ------------------------------------------------------------------------------ \n\n")
+		salidaNormal.WriteString("\n ============================================================================== \n\n")
+
+	case "cat":
+		salidaNormal.WriteString("\n =================================== cat =================================== \n")
+		if len(parametros) > 1 {
+			// ejecutar parametros
+			salidaMkfs := fileSystem.Cat(parametros)
+
+			// Detectar si hay errores en la salida
+			if strings.Contains(strings.ToLower(salidaMkfs), "error") {
+				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salidaMkfs))
+				resultado.Exito = false
+			} else {
+				salidaNormal.WriteString(fmt.Sprintf("\tComando Ejecutado: %s\n%s", entrada, salidaMkfs))
+			}
+		} else {
+			// retornar un error
+			errorMsg := "\t ---> ERROR [ CAT ]: falta de parametros obligatorios"
+			salidaError.WriteString(errorMsg + "\n")
+			resultado.Exito = false
+		}
+		salidaNormal.WriteString("\n ============================================================================== \n\n")
+
+	case "login":
+		salidaNormal.WriteString("\n =================================== login =================================== \n")
+		if len(parametros) > 1 {
+			// ejecutar parametros
+			salidaLogin := users.Login(parametros)
+
+			// Detectar si hay errores en la salida
+			if strings.Contains(strings.ToLower(salidaLogin), "error") {
+				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salidaLogin))
+				resultado.Exito = false
+			} else {
+				salidaNormal.WriteString(fmt.Sprintf("\tComando Ejecutado: %s\n%s", entrada, salidaLogin))
+			}
+		} else {
+			// retornar un error
+			errorMsg := "\t ---> ERROR [ LOGIN ]: falta de parametros obligatorios"
+			salidaError.WriteString(errorMsg + "\n")
+			resultado.Exito = false
+		}
+		salidaNormal.WriteString("\n ============================================================================== \n\n")
+
+	case "logout":
+		salidaNormal.WriteString("\n =================================== logout =================================== \n")
+		if len(parametros) == 1 {
+			// ejecutar parametros
+			salida := users.Logout(parametros)
+
+			// Detectar si hay errores en la salida
+			if strings.Contains(strings.ToLower(salida), "error") {
+				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salida))
+				resultado.Exito = false
+			} else {
+				salidaNormal.WriteString(fmt.Sprintf("\tComando Ejecutado: %s\n%s", entrada, salida))
+			}
+		} else {
+			// retornar un error
+			errorMsg := "\t ---> ERROR [ LOGOUT ]: No permite parametros adicionales"
+			salidaError.WriteString(errorMsg + "\n")
+			resultado.Exito = false
+		}
+		salidaNormal.WriteString("\n ============================================================================== \n\n")
+
+	case "mkgrp":
+		salidaNormal.WriteString("\n =================================== mkgrp =================================== \n")
+		if len(parametros) > 1 {
+			// ejecutar parametros
+			salida := users.Mkgrp(parametros)
+
+			// Detectar si hay errores en la salida
+			if strings.Contains(strings.ToLower(salida), "error") {
+				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salida))
+				resultado.Exito = false
+			} else {
+				salidaNormal.WriteString(fmt.Sprintf("\tComando Ejecutado: %s\n%s", entrada, salida))
+			}
+		} else {
+			// retornar un error
+			errorMsg := "\t ---> ERROR [ MKGRP ]: falta de parametros obligatorios"
+			salidaError.WriteString(errorMsg + "\n")
+			resultado.Exito = false
+		}
+		salidaNormal.WriteString("\n ============================================================================== \n\n")
+
+	case "rmgrp":
+		salidaNormal.WriteString("\n =================================== rmgrp =================================== \n")
+		if len(parametros) > 1 {
+			// ejecutar parametros
+			salida := users.Rmgrp(parametros)
+
+			// Detectar si hay errores en la salida
+			if strings.Contains(strings.ToLower(salida), "error") {
+				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salida))
+				resultado.Exito = false
+			} else {
+				salidaNormal.WriteString(fmt.Sprintf("\tComando Ejecutado: %s\n%s", entrada, salida))
+			}
+		} else {
+			// retornar un error
+			errorMsg := "\t ---> ERROR [ MRGRP ]: falta de parametros obligatorios"
+			salidaError.WriteString(errorMsg + "\n")
+			resultado.Exito = false
+		}
+		salidaNormal.WriteString("\n ============================================================================== \n\n")
+
+	case "mkusr":
+		salidaNormal.WriteString("\n =================================== mkusr =================================== \n")
+		if len(parametros) > 1 {
+			// ejecutar parametros
+			salida := users.Mkusr(parametros)
+
+			// Detectar si hay errores en la salida
+			if strings.Contains(strings.ToLower(salida), "error") {
+				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salida))
+				resultado.Exito = false
+			} else {
+				salidaNormal.WriteString(fmt.Sprintf("\tComando Ejecutado: %s\n%s", entrada, salida))
+			}
+		} else {
+			// retornar un error
+			errorMsg := "\t ---> ERROR [ MRGRP ]: falta de parametros obligatorios"
+			salidaError.WriteString(errorMsg + "\n")
+			resultado.Exito = false
+		}
+		salidaNormal.WriteString("\n ============================================================================== \n\n")
+
+	case "rmusr":
+		salidaNormal.WriteString("\n =================================== rmusr =================================== \n")
+		if len(parametros) > 1 {
+			// ejecutar parametros
+			salida := users.Rmusr(parametros)
+
+			// Detectar si hay errores en la salida
+			if strings.Contains(strings.ToLower(salida), "error") {
+				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salida))
+				resultado.Exito = false
+			} else {
+				salidaNormal.WriteString(fmt.Sprintf("\tComando Ejecutado: %s\n%s", entrada, salida))
+			}
+		} else {
+			// retornar un error
+			errorMsg := "\t ---> ERROR [ MRGRP ]: falta de parametros obligatorios"
+			salidaError.WriteString(errorMsg + "\n")
+			resultado.Exito = false
+		}
+		salidaNormal.WriteString("\n ============================================================================== \n\n")
+
+	case "chgrp":
+		salidaNormal.WriteString("\n =================================== chgrp =================================== \n")
+		if len(parametros) > 1 {
+			// ejecutar parametros
+			salida := users.Chgrp(parametros)
+
+			// Detectar si hay errores en la salida
+			if strings.Contains(strings.ToLower(salida), "error") {
+				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salida))
+				resultado.Exito = false
+			} else {
+				salidaNormal.WriteString(fmt.Sprintf("\tComando Ejecutado: %s\n%s", entrada, salida))
+			}
+		} else {
+			// retornar un error
+			errorMsg := "\t ---> ERROR [ MRGRP ]: falta de parametros obligatorios"
+			salidaError.WriteString(errorMsg + "\n")
+			resultado.Exito = false
+		}
+		salidaNormal.WriteString("\n ============================================================================== \n\n")
+
+	case "mkdir":
+		salidaNormal.WriteString("\n =================================== mkdir =================================== \n")
+		if len(parametros) > 1 {
+			// ejecutar parametros
+			salida := filesFolders.Mkdir(parametros)
+
+			// Detectar si hay errores en la salida
+			if strings.Contains(strings.ToLower(salida), "error") {
+				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salida))
+				resultado.Exito = false
+			} else {
+				salidaNormal.WriteString(fmt.Sprintf("\tComando Ejecutado: %s\n%s", entrada, salida))
+			}
+		} else {
+			// retornar un error
+			errorMsg := "\t ---> ERROR [ MKDIR ]: falta de parametros obligatorios"
+			salidaError.WriteString(errorMsg + "\n")
+			resultado.Exito = false
+		}
+		salidaNormal.WriteString("\n ============================================================================== \n\n")
+
+	case "mkfile":
+		salidaNormal.WriteString("\n =================================== mkfile =================================== \n")
+		if len(parametros) > 1 {
+			// ejecutar parametros
+			salida := filesFolders.Mkfile(parametros)
+
+			// Detectar si hay errores en la salida
+			if strings.Contains(strings.ToLower(salida), "error") {
+				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salida))
+				resultado.Exito = false
+			} else {
+				salidaNormal.WriteString(fmt.Sprintf("\tComando Ejecutado: %s\n%s", entrada, salida))
+			}
+		} else {
+			// retornar un error
+			errorMsg := "\t ---> ERROR [ MKFILE ]: falta de parametros obligatorios"
+			salidaError.WriteString(errorMsg + "\n")
+			resultado.Exito = false
+		}
+		salidaNormal.WriteString("\n ============================================================================== \n\n")
+
 	case "rep":
-		salidaNormal.WriteString("\n ----------------------------------- Rep ----------------------------------- \n")
+		salidaNormal.WriteString("\n =================================== Rep =================================== \n")
 		if len(parametros) > 1 {
 			// ejecutar parametros
 			salidaRep := rep.Reportes(parametros)
@@ -224,15 +438,16 @@ func analizarEntrada(entrada string) models.ResultadoComando {
 				salidaError.WriteString(fmt.Sprintf("Error en comando: %s\n%s", entrada, salidaRep))
 				resultado.Exito = false
 			} else {
-				salidaNormal.WriteString(salidaRep)
+				salidaNormal.WriteString(fmt.Sprintf("\tComando Ejecutado: %s\n%s", entrada, salidaRep))
 			}
 		} else {
 			// retornar un error
-			errorMsg := "\t ---> ERROR [ MKFS ]: falta de parametros obligatorios"
+			errorMsg := "\t ---> ERROR [ REP ]: falta de parametros obligatorios"
 			salidaError.WriteString(errorMsg + "\n")
 			resultado.Exito = false
 		}
-		salidaNormal.WriteString("\n ------------------------------------------------------------------------------ \n\n")
+		salidaNormal.WriteString("\n ============================================================================== \n\n")
+
 	default:
 		errorMsg := fmt.Sprintf("\t ---> ERROR [ ]: comando no reconocido %s", strings.ToLower(parametros[0]))
 		salidaError.WriteString(errorMsg + "\n")
@@ -243,11 +458,11 @@ func analizarEntrada(entrada string) models.ResultadoComando {
 	resultado.Salida = salidaNormal.String()
 	resultado.Errores = salidaError.String()
 
-	// Este printf es solo para debugging en la consola del servidor
 	fmt.Printf("Comando: %s, Éxito: %v\n", entrada, resultado.Exito)
 	if resultado.Salida != "" {
 		fmt.Printf("Salida:\n%s\n", resultado.Salida)
 	}
+
 	if resultado.Errores != "" {
 		fmt.Printf("Errores:\n%s\n", resultado.Errores)
 	}
