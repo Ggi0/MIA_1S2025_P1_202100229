@@ -23,7 +23,7 @@ export function FileUpload({ onFileUpload }) {
       <input
         id="fileInput"
         type="file"
-        accept=".txt,.mia"
+        accept=".txt,.smia"
         onChange={handleFileChange}
         style={{ display: "none" }}
       />

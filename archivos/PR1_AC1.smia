@@ -1,7 +1,7 @@
 ﻿#Calificacion Proyecto 1
 #1S 2025
 #Cambiar "su_usuario" -> por el usuario de su distribución de linux  
-#Cambiar “34” -> por los ultimos dos digitos de su carnet  
+#Cambiar “29” -> por los ultimos dos digitos de su carnet  
 
 
 
@@ -130,9 +130,9 @@ fdisk -type=L -unit=k -name=Part56 -size=1024 -path=/home/”su_usuario”/Calif
 #-----------------MOUNT-----------------
 #-----------------MONTAR PARTICIONES-----------------
 #DISCO 1
-#341A -> 34 sus ultimos dos digitos del carnet
+#291A -> 29 sus ultimos dos digitos del carnet
 mount -path=/home/”su_usuario”/Calificacion_MIA/Discos/Disco1.mia -name=Part11
-#342A -> 34 sus ultimos dos digitos del carnet
+#292A -> 29 sus ultimos dos digitos del carnet
 mount -path=/home/”su_usuario”/Calificacion_MIA/Discos/Disco1.mia -name=Part12
 #ERROR PARTICION YA MONTADA
 mount -path=/home/”su_usuario”/Calificacion_MIA/Discos/Disco1.mia -name=Part11
@@ -143,16 +143,16 @@ mount -path=/home/”su_usuario”/Calificacion_MIA/Discos/Disco1.mia -name=Part
 #DISCO 3
 #ERROR PARTCION NO EXISTE
 mount -path=/home/”su_usuario”/Calificacion_MIA/Discos/Disco3.mia -name=Part0
-#341B -> 34 sus ultimos dos digitos del carnet
+#291B -> 29 sus ultimos dos digitos del carnet
 mount -path=/home/”su_usuario”/Calificacion_MIA/Discos/Disco3.mia -name=Part31
-#342B -> 34 sus ultimos dos digitos del carnet
+#292B -> 29 sus ultimos dos digitos del carnet
 mount -path=/home/”su_usuario”/Calificacion_MIA/Discos/Disco3.mia -name=Part32
 
 
 
 
 #DISCO 5
-#341C -> 34 sus ultimos dos digitos del carnet
+#291C -> 29 sus ultimos dos digitos del carnet
 mount -path=/home/”su_usuario”/Calificacion_MIA/Discos/Disco5.mia -name=Part53
 
 
@@ -166,22 +166,22 @@ mounted
 #-----------------REPORTES PARTE 1-----------------
 #DISCO 1
 #ERROR ID NO ENCONTRADO
-rep -id=A341 -Path=/home/”su_usuario”/Calificacion_MIA/Reportes/p1_rE.jpg -name=mbr
+rep -id=A291 -Path=/home/”su_usuario”/Calificacion_MIA/Reportes/p1_rE.jpg -name=mbr
 #REPORTE DISK
-rep -id=341A -Path=/home/”su_usuario”/Calificacion_MIA/Reportes/p1_r1_disk.jpg -name=disk
+rep -id=291A -Path=/home/”su_usuario”/Calificacion_MIA/Reportes/p1_r1_disk.jpg -name=disk
 #REPORTE MBR 
-rep -id=341A -Path=/home/”su_usuario”/Calificacion_MIA/Reportes/p1_r2_mbr.jpg -name=mbr
+rep -id=291A -Path=/home/”su_usuario”/Calificacion_MIA/Reportes/p1_r2_mbr.jpg -name=mbr
 
 
 
 
 #DISCO 3
 #ERROR ID NO ENCONTRADO
-rep -id=343B -Path=/home/”su_usuario”/Calificacion_MIA/Reportes/p1_rE_mbr.jpg -name=mbr
+rep -id=293B -Path=/home/”su_usuario”/Calificacion_MIA/Reportes/p1_rE_mbr.jpg -name=mbr
 #REPORTE DISK
-rep -id=341B -Path=/home/”su_usuario”/Calificacion_MIA/Reportes/p1_r3_disk.jpg -name=disk
+rep -id=291B -Path=/home/”su_usuario”/Calificacion_MIA/Reportes/p1_r3_disk.jpg -name=disk
 #REPORTE MBR
-rep -id=342B -Path=/home/”su_usuario”/Calificacion_MIA/Reportes/p1_r4_disk.jpg -name=mbr
+rep -id=292B -Path=/home/”su_usuario”/Calificacion_MIA/Reportes/p1_r4_disk.jpg -name=mbr
 
 
 
@@ -190,15 +190,15 @@ rep -id=342B -Path=/home/”su_usuario”/Calificacion_MIA/Reportes/p1_r4_disk.j
 #ERROR ID NO ENCONTRADO
 rep -id=IDx -Path=/home/”su_usuario”/Calificacion_MIA/Reportes/p1_rE_mbr.jpg -name=mbr
 #REPORTE DISK
-rep -id=341C -Path=/home/”su_usuario”/Calificacion_MIA/Reportes/p1_r5_disk.jpg -name=disk
+rep -id=291C -Path=/home/”su_usuario”/Calificacion_MIA/Reportes/p1_r5_disk.jpg -name=disk
 #REPORTE MBR
-rep -id=341C -Path=/home/”su_usuario”/Calificacion_MIA/Reportes/p1_r6_mbr.jpg -name=mbr
+rep -id=291C -Path=/home/”su_usuario”/Calificacion_MIA/Reportes/p1_r6_mbr.jpg -name=mbr
 
 
 
 
 #-----------------5. MKFS-----------------
-mkfs -type=full -id=341A
+mkfs -type=full -id=291A
 
 
 
@@ -209,9 +209,9 @@ mkfs -type=full -id=341A
 
 
 #-----------------7. LOGIN-----------------
-login -user=root -pass=123 -id=341A
+login -user=root -pass=123 -id=291A
 #ERROR SESION INICIADA
-login -user=root -pass=123 -id=341A
+login -user=root -pass=123 -id=291A
 
 
 
@@ -306,7 +306,7 @@ logout #ERROR NO HAY SESION INICIADA
 
 
 #-----------------7. LOGIN-----------------
-login -user=user1 -pass=abc -id=341A
+login -user=user1 -pass=abc -id=291A
 
 
 
@@ -356,14 +356,14 @@ cat -file1=/home/archivos/user/docs/Tarea3.txt
 
 
 #------------------------REPORTES PARTE 4----------------
-rep -id=341A -path=/home/”su_usuario”/Calificacion_MIA/Reportes/p4_r1_inode.jpg" -name=inode
-rep -id=341A -path=/home/”su_usuario”/Calificacion_MIA/Reportes/p4_r2_block.jpg" -name=block
-rep -id=341A -path=/home/”su_usuario”/Calificacion_MIA/Reportes/p4_r3_bm_inode.txt" -name=bm_inode
-rep -id=341A -path=/home/”su_usuario”/Calificacion_MIA/Reportes/p4_r4_bm_block.txt" -name=bm_block
-rep -id=341A -path=/home/”su_usuario”/Calificacion_MIA/Reportes/p4_r5_sb.jpg" -name=sb
-rep -id=341A -path=/home/”su_usuario”/Calificacion_MIA/Reportes/p4_r6_file.jpg" -path_file_ls=/home/archivos/user/docs/Tarea2.txt  -name=file
-rep -id=341A -path=/home/”su_usuario”/Calificacion_MIA/Reportes/p4_r7_ls.jpg" -path_file_ls=/home/archivos/user/docs -name=ls
-rep -id=341A -path=/home/”su_usuario”/Calificacion_MIA/Reportes/p4_r8_tree.png" -name=tree
+rep -id=291A -path=/home/”su_usuario”/Calificacion_MIA/Reportes/p4_r1_inode.jpg" -name=inode
+rep -id=291A -path=/home/”su_usuario”/Calificacion_MIA/Reportes/p4_r2_block.jpg" -name=block
+rep -id=291A -path=/home/”su_usuario”/Calificacion_MIA/Reportes/p4_r3_bm_inode.txt" -name=bm_inode
+rep -id=291A -path=/home/”su_usuario”/Calificacion_MIA/Reportes/p4_r4_bm_block.txt" -name=bm_block
+rep -id=291A -path=/home/”su_usuario”/Calificacion_MIA/Reportes/p4_r5_sb.jpg" -name=sb
+rep -id=291A -path=/home/”su_usuario”/Calificacion_MIA/Reportes/p4_r6_file.jpg" -path_file_ls=/home/archivos/user/docs/Tarea2.txt  -name=file
+rep -id=291A -path=/home/”su_usuario”/Calificacion_MIA/Reportes/p4_r7_ls.jpg" -path_file_ls=/home/archivos/user/docs -name=ls
+rep -id=291A -path=/home/”su_usuario”/Calificacion_MIA/Reportes/p4_r8_tree.png" -name=tree
 
 
 
