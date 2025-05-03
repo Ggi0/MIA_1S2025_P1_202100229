@@ -155,6 +155,14 @@ func CrearEXT2(n int32, particion Estructuras.Partition, newSuperBloque Superblo
 	for i := int32(0); i < 15; i++ {
 		Inode1.I_block[i] = -1
 	}
+
+	/*
+
+		No se está creando un archivo "users.txt" físicamente como lo harías con un editor de texto.
+		Lo que se está haciendo es escribir datos binarios directamente en el disco que representan
+		la estructura del sistema de archivos.
+
+	*/
 	//Inode1 apunta al bloque1 (en este caso el bloque1 contiene el archivo)
 	Inode1.I_block[0] = 1
 	data := "1,G,root\n1,U,root,root,123\n"

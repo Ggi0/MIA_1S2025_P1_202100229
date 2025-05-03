@@ -127,6 +127,16 @@ func WriteObject(file *os.File, data interface{}, position int64) error {
 }
 
 // Function to Read an object from a bin file
+/*
+lee datos de un archivo en una posición específica y los guarda en una variable (data).
+
+	Mueve el "cursor" del archivo a una posición específica indicada por position.
+	Esto se hace desde el inicio del archivo gracias al uso del 0 en file.Seek(position, 0).
+
+	Luego, lee los datos desde esa posición hacia adelante hasta llenar la variable data.
+	La cantidad de datos que se lee depende del tamaño de data.
+
+*/
 func ReadObject(file *os.File, data interface{}, position int64) error {
 	file.Seek(position, 0) // lee desde la posicion (posicion, 0)
 	err := binary.Read(file, binary.LittleEndian, data)
