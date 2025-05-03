@@ -22,10 +22,15 @@ func Reportes(parametros []string) string {
 	var name string //obligatorio Nombre del tipo de reporte a generar
 	var path string //obligatorio Nombre que tendrá el reporte
 	var id string   //obligatorio sera el del disco o el de la particion
+
+	var ruta string
+	rutaInit := false
 	//var ruta string //opcional para file y ls
 	paramC := true //valida que todos los parametros sean correctos
 
 	for _, parametro := range parametros[1:] {
+
+		fmt.Println(" -> Parametro: ", parametro)
 		//quito los espacios en blano despues de cada parametro
 		tmp2 := strings.TrimRight(parametro, " ")
 		//divido cada parametro entre nombre del parametro y su valor # -size=25 -> -size, 25
@@ -33,26 +38,29 @@ func Reportes(parametros []string) string {
 
 		//Si falta el valor del parametro actual lo reconoce como error e interrumpe el proceso
 		if len(tmp) != 2 {
-			fmt.Println("REP Error: Valor desconocido del parametro ", tmp[0])
+			logger.LogError("ERROR [ REP ]: Valor desconocido del parametro %s", tmp[0])
 			paramC = false
 			break //para finalizar el ciclo for con el error y no ejecutar lo que haga falta
 		}
 
-		if strings.ToLower(tmp[0]) == "name" {
+		switch strings.ToLower(tmp[0]) {
+		case "name":
 			name = strings.ToLower(tmp[1])
-		} else if strings.ToLower(tmp[0]) == "path" {
+		case "path":
 			// Eliminar comillas
-			name = strings.ReplaceAll(tmp[1], "\"", "")
-			path = name
-		} else if strings.ToLower(tmp[0]) == "id" {
-			id = strings.ToUpper(tmp[1]) //Mayusculas para tratarlo como case insensitive
-		} else if strings.ToLower(tmp[0]) == "ruta" {
-			//ruta = strings.ToLower(tmp[1])
-		} else {
+			path = strings.ReplaceAll(tmp[1], "\"", "")
+		case "id":
+			// Mayúsculas para tratarlo como case insensitive
+			id = strings.ToUpper(tmp[1])
+		case "path_file_ls":
+			ruta = strings.ToLower(tmp[1])
+			rutaInit = true
+		default:
 			fmt.Println("REP Error: Parametro desconocido: ", tmp[0])
 			paramC = false
-			break //por si en el camino reconoce algo invalido de una vez se sale
+			break // Por si en el camino reconoce algo inválido, se sale
 		}
+
 	}
 
 	// 3) validar logica comando
@@ -61,18 +69,53 @@ func Reportes(parametros []string) string {
 		if name != "" && id != "" && path != "" {
 			switch name {
 			case "mbr":
-				fmt.Println("reporte mbr")
-				mbr(path, id)
+				logger.LogInfo("reporte mbr")
+				reporte_mbr(path, id, logger)
 			case "ebr":
-				fmt.Println("reporte ebr")
-				ebr(path, id)
+				logger.LogInfo("reporte ebr")
+				reporte_ebr(path, id, logger)
 			case "disk":
-				fmt.Println("reporte disk")
+				logger.LogInfo("reporte disk")
+				reporte_disk(path, id, logger)
+			case "inode":
+				logger.LogInfo("reporte inode")
+				reporte_inode(path, id, logger)
+			case "block":
+				logger.LogInfo("reporte block")
+				reporte_block(path, id, logger)
+			case "bm_inode":
+				logger.LogInfo("reporte bitmap inodes")
+				reporte_bm_inode(path, id, logger)
+			case "bm_block":
+				logger.LogInfo("reporte bitmap bloques")
+				reporte_bm_block(path, id, logger)
+			case "tree":
+				logger.LogInfo("reporte tree")
+				reporte_tree(path, id, logger)
+			case "sb":
+				logger.LogInfo("reporte sb")
+				reporte_sb(path, id, logger)
+			case "file":
+				if rutaInit {
+					logger.LogInfo("reporte file")
+					reporte_file(path, id, ruta, logger)
+				} else {
+					logger.LogError("REP Error: Reporte el parametro path_file_ls no esta inicializado")
+				}
+
+			case "ls":
+				if rutaInit {
+					logger.LogInfo("reporte file")
+					reporte_ls(path, id, ruta, logger)
+				} else {
+					logger.LogError("REP Error: Reporte el parametro path_file_ls no esta inicializado")
+				}
+
 			default:
-				fmt.Println("REP Error: Reporte ", name, " desconocido")
+				logger.LogError("REP Error: Reporte %s desconocido", name)
 			}
 		} else {
-			fmt.Println("REP Error: Faltan parametros")
+			logger.LogError("REP Error: Faltan parametros")
 		}
 	}
 
@@ -84,7 +127,7 @@ func Reportes(parametros []string) string {
 
 }
 
-func mbr(path string, id string) {
+func reporte_mbr(path string, id string, logger *utils.Logger) {
 	var pathDico string
 	existe := false
 
@@ -128,7 +171,7 @@ func mbr(path string, id string) {
 		cad += fmt.Sprintf(" <tr>\n  <td bgcolor='Azure'> mbr_tamano </td> \n  <td bgcolor='Azure'> %d </td> \n </tr> \n", mbr.Mbr_tamanio)
 		cad += fmt.Sprintf(" <tr>\n  <td bgcolor='#AFA1D1'> mbr_fecha_creacion </td> \n  <td bgcolor='#AFA1D1'> %s </td> \n </tr> \n", string(mbr.Mbr_creation_date[:]))
 		cad += fmt.Sprintf(" <tr>\n  <td bgcolor='Azure'> mbr_disk_signature </td> \n  <td bgcolor='Azure'> %d </td> \n </tr>  \n", mbr.Mbr_disk_signature)
-		cad += Estructuras.RepGraphviz(mbr, file)
+		cad += Estructuras.RepGraphviz(mbr, file, logger)
 		cad += "</table> > ]\n}"
 
 		//reporte requerido
@@ -136,13 +179,13 @@ func mbr(path string, id string) {
 		rutaReporte := "." + carpeta + "/" + nombreReporte + ".dot"
 
 		Acciones.RepGraphizMBR(rutaReporte, cad, nombreReporte)
-		fmt.Println(" Reporte MBR del disco " + disco + " creado exitosamente")
+		logger.LogInfo(" Reporte MBR del disco %s creado exitosamente", disco)
 	} else {
-		fmt.Println("REP Error: Id no existe")
+		logger.LogError("REP Error: Id no existe")
 	}
 }
 
-func ebr(path string, id string) {
+func reporte_ebr(path string, id string, logger *utils.Logger) {
 	var pathDisco string
 	var particionExtendida Estructuras.Partition
 	encontrada := false
@@ -168,7 +211,7 @@ func ebr(path string, id string) {
 
 		file, err := Acciones.OpenFile(pathDisco)
 		if err != nil {
-			fmt.Println("REP Error: No se pudo abrir el disco")
+			logger.LogError("REP Error: No se pudo abrir el disco")
 			return
 		}
 		defer file.Close()
@@ -176,7 +219,7 @@ func ebr(path string, id string) {
 		// Leer el MBR para encontrar la partición extendida
 		var mbr Estructuras.MBR
 		if err := Acciones.ReadObject(file, &mbr, 0); err != nil {
-			fmt.Println("REP Error: No se pudo leer el MBR")
+			logger.LogError("REP Error: No se pudo leer el MBR")
 			return
 		}
 
@@ -191,7 +234,7 @@ func ebr(path string, id string) {
 		}
 
 		if !encontrada {
-			fmt.Println("REP Error: No se encontró partición extendida en el disco")
+			logger.LogError("REP Error: No se encontró partición extendida en el disco")
 			return
 		}
 
@@ -214,9 +257,9 @@ func ebr(path string, id string) {
 		rutaReporte := "." + carpeta + "/" + nombreReporte + ".dot"
 
 		Acciones.RepGraphizMBR(rutaReporte, cad, nombreReporte)
-		fmt.Println(" Reporte EBR del disco " + disco + " creado exitosamente")
+		logger.LogInfo(" Reporte EBR del disco %s creado exitosamente", disco)
 	} else {
-		fmt.Println("REP Error: Id no existe")
+		logger.LogError("REP Error: Id no existe")
 	}
 }
 
